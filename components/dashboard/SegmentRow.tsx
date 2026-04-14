@@ -2,10 +2,9 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { SEGMENT_CONFIG, SEGMENT_HEX, formatARS } from '@/lib/constants';
+import { SEGMENT_CONFIG, formatARS } from '@/lib/constants';
 import type { SegmentSummary } from '@/lib/types';
 import { Numeral } from '@/components/ui/Numeral';
-import { cn } from '@/lib/cn';
 
 const TREND_GLYPH = {
   up: '↗',
@@ -14,9 +13,9 @@ const TREND_GLYPH = {
 } as const;
 
 const TREND_COLOR = {
-  up: 'text-segment-active',
-  down: 'text-segment-dormant',
-  stable: 'text-fg-subtle',
+  up: 'var(--k-green, #0e5e48)',
+  down: 'var(--accent)',
+  stable: 'var(--fg-subtle)',
 } as const;
 
 export function SegmentRow({
@@ -27,71 +26,117 @@ export function SegmentRow({
   index: number;
 }) {
   const cfg = SEGMENT_CONFIG[summary.segment];
-  const hex = SEGMENT_HEX[summary.segment];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, delay: 0.15 + index * 0.06, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.45, delay: 0.12 + index * 0.05, ease: [0.2, 0.7, 0.2, 1] }}
     >
       <Link
         href={`/audience?segment=${summary.segment}` as const}
-        className="group relative block border-b border-hairline transition-colors duration-200 hover:bg-bg-raised"
+        className="group relative block transition-colors duration-200 hover:bg-bg-sunken"
+        style={{ borderBottom: '1px solid var(--hairline)' }}
       >
-        {/* Accent bar */}
+        {/* Accent bar: expands on hover */}
         <span
-          className="absolute left-0 top-0 bottom-0 w-[3px] transition-all duration-200 group-hover:w-[6px]"
-          style={{ backgroundColor: hex }}
           aria-hidden
+          className="absolute left-0 top-0 bottom-0 transition-[width] duration-200 group-hover:w-[6px] w-[3px]"
+          style={{ backgroundColor: `var(--segment-${summary.segment})` }}
         />
 
-        <div className="grid grid-cols-[minmax(0,1fr)_110px_80px_180px_auto] items-center gap-8 pl-8 pr-6 py-8">
+        <div className="grid grid-cols-[minmax(0,1fr)_110px_80px_180px_auto] items-center gap-8 pl-8 pr-6 py-7">
           <div className="min-w-0">
             <h3
-              className="font-display text-2xl md:text-[28px] leading-tight text-fg"
-              style={{ fontVariationSettings: '"opsz" 144, "SOFT" 50' }}
+              style={{
+                fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
+                fontWeight: 800,
+                fontSize: 'clamp(1.25rem, 1.7vw, 1.6rem)',
+                letterSpacing: '-0.035em',
+                color: 'var(--fg)',
+                lineHeight: 1.05,
+              }}
             >
               {cfg.label}
             </h3>
             <p
-              className="mt-1 font-display italic text-[13px] text-fg-muted max-w-[48ch] leading-snug"
-              style={{ fontVariationSettings: '"opsz" 14' }}
+              className="k-italic-serif mt-1.5 leading-snug"
+              style={{
+                fontSize: '13.5px',
+                color: 'var(--fg-muted)',
+                maxWidth: '52ch',
+              }}
             >
               {cfg.description}
             </p>
           </div>
 
           <div className="text-right">
-            <div className="font-mono text-[28px] tabular-nums text-fg">
+            <div
+              className="font-mono tabular-nums"
+              style={{
+                fontSize: '26px',
+                color: 'var(--fg)',
+                letterSpacing: '-0.01em',
+              }}
+            >
               <Numeral value={summary.count} />
             </div>
-            <div className="text-[10px] uppercase tracking-label text-fg-subtle mt-1">
+            <div
+              className="text-[9.5px] uppercase mt-0.5"
+              style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
+            >
               comensales
             </div>
           </div>
 
           <div className="text-right">
-            <div className="font-mono text-[13px] text-fg-muted tabular-nums">
+            <div
+              className="font-mono text-[12px] tabular-nums"
+              style={{ color: 'var(--fg-muted)' }}
+            >
               {summary.percentage.toFixed(1)}%
             </div>
-            <div className={cn('text-base mt-1 font-mono', TREND_COLOR[summary.trend])}>
+            <div
+              className="font-mono text-base mt-0.5"
+              style={{ color: TREND_COLOR[summary.trend] }}
+            >
               {TREND_GLYPH[summary.trend]}
             </div>
           </div>
 
           <div className="text-right">
-            <div className="font-mono text-[14px] text-accent tabular-nums">
+            <div
+              className="font-mono tabular-nums"
+              style={{
+                fontSize: '16px',
+                color: 'var(--accent)',
+                fontWeight: 600,
+              }}
+            >
               {formatARS(summary.revenue_opportunity)}
             </div>
-            <div className="text-[10px] uppercase tracking-label text-fg-subtle mt-1">
+            <div
+              className="text-[9.5px] uppercase mt-0.5"
+              style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
+            >
               oportunidad
             </div>
           </div>
 
           <div className="text-right">
-            <span className="text-[11px] uppercase tracking-[0.12em] text-fg-muted group-hover:text-accent transition-colors">
-              {cfg.cta} &nbsp;→
+            <span
+              className="inline-flex items-center gap-1.5 text-[10.5px] uppercase font-[600] px-3 py-1.5 transition-colors group-hover:bg-[var(--k-green)] group-hover:text-[var(--bg)] group-hover:border-[var(--k-green)]"
+              style={{
+                letterSpacing: '0.16em',
+                border: '1px solid var(--fg)',
+                color: 'var(--fg)',
+                background: 'transparent',
+                fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
+              }}
+            >
+              {cfg.cta}
+              <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </span>
           </div>
         </div>

@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0B0A09;
-  --bg-raised: #141210;
-  --bg-sunken: #080706;
-  --bg-elevated: #1C1A17;
-  --fg: #F5F2EC;
-  --fg-muted: #A8A29A;
-  --fg-subtle: #5C5852;
-  --fg-faint: #3A3733;
-  --hairline: #262320;
-  --hairline-strong: #33302C;
+  --bg: #FAF8F3;
+  --bg-raised: #FFFFFF;
+  --bg-sunken: #EDEAE3;
+  --bg-elevated: #FFFFFF;
+  --fg: #1A1815;
+  --fg-muted: #4A4640;
+  --fg-subtle: #78726A;
+  --fg-faint: #B8B2A8;
+  --hairline: #E5E0D8;
+  --hairline-strong: #D4CEC4;
   --accent: #E8B769;
   --accent-dim: #B88A4A;
 
@@ -59,14 +59,14 @@
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    opacity: 0.04;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   ::selection {
     background: var(--accent);
-    color: var(--bg);
+    color: var(--fg);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -154,6 +154,28 @@
     --k-royal: #5b8def;
     --k-sun: #f0a04b;
 
+    /* Alias base tokens → Kaszek so existing Tailwind utilities (text-fg, bg-bg-sunken, border-hairline, text-accent, etc.) auto-reskin inside this subtree. */
+    --bg: var(--k-cream);
+    --bg-raised: #ffffff;
+    --bg-sunken: var(--k-cream-soft);
+    --bg-elevated: var(--k-cream-deep);
+    --fg: var(--k-ink);
+    --fg-muted: var(--k-ink-muted);
+    --fg-subtle: var(--k-ink-subtle);
+    --fg-faint: #b3afa5;
+    --hairline: var(--k-hairline);
+    --hairline-strong: var(--k-hairline-strong);
+    --accent: var(--k-terracotta);
+    --accent-dim: var(--k-terracotta-deep);
+
+    /* Bauhaus segment remap — one chromatic anchor per segment */
+    --segment-vip: var(--k-sun);
+    --segment-active: var(--k-green);
+    --segment-new: var(--k-royal);
+    --segment-at_risk: var(--k-mint);
+    --segment-dormant: var(--k-terracotta);
+    --segment-lead: #9e8fb8;
+
     background: var(--k-cream);
     color: var(--k-ink);
     font-family: var(--font-kaszek-sans), Inter, system-ui, sans-serif;
@@ -175,6 +197,54 @@
     letter-spacing: -0.035em;
     color: var(--k-ink);
     font-feature-settings: 'ss02';
+  }
+
+  /* Inside Kaszek scope, .k-italic-serif brings back Fraunces for cadencia editorial in italic body fragments only. */
+  [data-theme='kaszek'] .k-italic-serif {
+    font-family: var(--font-display), Georgia, serif;
+    font-style: italic;
+    letter-spacing: -0.01em;
+  }
+
+  /* Outlined digit — terracotta fill + ink stroke, signature of the landing hero, reusable in dashboard anchors. */
+  .k-digit-outlined {
+    color: var(--k-terracotta);
+    -webkit-text-stroke: 2px var(--k-ink);
+    text-stroke: 2px var(--k-ink);
+    font-family: var(--font-kaszek-display), 'Archivo Black', system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.88;
+  }
+
+  /* Event pill — cream-soft + backdrop blur + pulse dot, reused on Header. */
+  .k-event-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(241, 237, 227, 0.8);
+    border: 1px solid var(--k-hairline);
+    backdrop-filter: blur(8px);
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--k-ink);
+  }
+  .k-event-pill::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--k-terracotta);
+    box-shadow: 0 0 0 3px rgba(230, 120, 76, 0.25);
+    animation: k-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes k-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
   }
 
   .k-display-xl {

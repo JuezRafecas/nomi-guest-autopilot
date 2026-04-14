@@ -1,5 +1,3 @@
-import { Label } from '@/components/ui/Label';
-
 export function Header({ title, subtitle }: { title?: string; subtitle?: string }) {
   const today = new Date().toLocaleDateString('es-AR', {
     weekday: 'long',
@@ -9,20 +7,40 @@ export function Header({ title, subtitle }: { title?: string; subtitle?: string 
   });
 
   return (
-    <header className="border-b border-hairline">
-      <div className="editorial-container flex items-center justify-between py-6">
-        <div>
-          {title && <Label>{subtitle ?? 'Diagnóstico'}</Label>}
+    <header style={{ borderBottom: '1.5px solid var(--fg)' }}>
+      <div className="editorial-container flex items-center justify-between py-5">
+        <div className="flex items-center gap-4">
+          <span className="k-event-pill">Live · Hoy</span>
           {title && (
-            <h1
-              className="font-display text-2xl text-fg mt-1"
-              style={{ fontVariationSettings: '"opsz" 144, "SOFT" 50' }}
-            >
-              {title}
-            </h1>
+            <div>
+              <div
+                className="text-[10px] uppercase font-[600]"
+                style={{
+                  letterSpacing: '0.18em',
+                  color: 'var(--k-green, #0e5e48)',
+                  fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
+                }}
+              >
+                {subtitle ?? 'Diagnóstico'}
+              </div>
+              <h1
+                className="text-[22px] leading-tight"
+                style={{
+                  fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
+                  fontWeight: 800,
+                  letterSpacing: '-0.03em',
+                  color: 'var(--fg)',
+                }}
+              >
+                {title}
+              </h1>
+            </div>
           )}
         </div>
-        <div className="font-mono text-[10px] uppercase tracking-label text-fg-subtle">
+        <div
+          className="font-mono text-[10px] uppercase"
+          style={{ letterSpacing: '0.14em', color: 'var(--fg-subtle)' }}
+        >
           {today}
         </div>
       </div>

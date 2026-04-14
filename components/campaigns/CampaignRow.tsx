@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { SEGMENT_HEX, formatARS } from '@/lib/constants';
+import { formatARS } from '@/lib/constants';
 import { describeAudience } from '@/lib/audience';
 import { CampaignStatusBadge } from './CampaignStatusBadge';
 import { Numeral } from '@/components/ui/Numeral';
@@ -12,81 +12,127 @@ import { TEMPLATES } from '@/lib/templates';
 export function CampaignRow({ campaign, index = 0 }: { campaign: Campaign; index?: number }) {
   const tpl = campaign.template_key ? TEMPLATES[campaign.template_key] : null;
   const accent = tpl?.accent ?? 'active';
-  const hex = SEGMENT_HEX[accent];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.06 * index, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.4, delay: 0.06 * index, ease: [0.2, 0.7, 0.2, 1] }}
     >
       <Link
         href={`/campaigns/${campaign.id}` as const}
-        className="group relative block border-b border-hairline transition-colors duration-200 hover:bg-bg-raised"
+        className="group relative block transition-colors duration-200 hover:bg-bg-sunken"
+        style={{ borderBottom: '1px solid var(--hairline)' }}
       >
         <span
-          className="absolute left-0 top-0 bottom-0 w-[3px] transition-all duration-200 group-hover:w-[6px]"
-          style={{ backgroundColor: hex }}
           aria-hidden
+          className="absolute left-0 top-0 bottom-0 transition-[width] duration-200 group-hover:w-[6px] w-[3px]"
+          style={{ backgroundColor: `var(--segment-${accent})` }}
         />
 
-        <div className="grid grid-cols-[minmax(0,1.8fr)_100px_90px_100px_140px_auto] items-center gap-6 pl-8 pr-6 py-7">
+        <div className="grid grid-cols-[minmax(0,1.8fr)_100px_90px_100px_140px_auto] items-center gap-6 pl-8 pr-6 py-6">
           <div className="min-w-0">
             <div className="flex items-center gap-3 mb-1.5">
               <CampaignStatusBadge status={campaign.status} animated />
-              <span className="text-[10px] uppercase tracking-label text-fg-subtle">
+              <span
+                className="text-[9.5px] uppercase"
+                style={{
+                  letterSpacing: '0.16em',
+                  color: 'var(--fg-subtle)',
+                  fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
+                }}
+              >
                 {campaign.type === 'automation' ? 'Automación' : 'Campaña puntual'}
               </span>
             </div>
             <h3
-              className="font-display text-2xl leading-tight text-fg truncate"
-              style={{ fontVariationSettings: '"opsz" 144, "SOFT" 40' }}
+              className="truncate"
+              style={{
+                fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
+                fontWeight: 800,
+                fontSize: '1.35rem',
+                letterSpacing: '-0.035em',
+                color: 'var(--fg)',
+                lineHeight: 1.1,
+              }}
             >
               {campaign.name}
             </h3>
             <p
-              className="mt-1 font-display italic text-[13px] text-fg-muted leading-snug max-w-[62ch] truncate"
-              style={{ fontVariationSettings: '"opsz" 14' }}
+              className="k-italic-serif mt-1 leading-snug truncate"
+              style={{
+                fontSize: '13px',
+                color: 'var(--fg-muted)',
+                maxWidth: '62ch',
+              }}
             >
               {describeAudience(campaign.audience_filter)}
             </p>
           </div>
 
-          <div className="text-right">
-            <div className="font-mono text-xl text-fg tabular-nums">
-              <Numeral value={campaign.metrics.sent} />
-            </div>
-            <div className="text-[10px] uppercase tracking-label text-fg-subtle">enviados</div>
-          </div>
+          <Metric value={<Numeral value={campaign.metrics.sent} />} label="enviados" />
+          <Metric
+            value={`${(campaign.metrics.response_rate * 100).toFixed(1)}%`}
+            label="respuesta"
+          />
+          <Metric
+            value={`${(campaign.metrics.conversion_rate * 100).toFixed(1)}%`}
+            label="conversión"
+          />
+          <Metric
+            value={formatARS(campaign.metrics.revenue_attributed)}
+            label="revenue"
+            anchor
+          />
 
           <div className="text-right">
-            <div className="font-mono text-xl text-fg tabular-nums">
-              {(campaign.metrics.response_rate * 100).toFixed(1)}%
-            </div>
-            <div className="text-[10px] uppercase tracking-label text-fg-subtle">respuesta</div>
-          </div>
-
-          <div className="text-right">
-            <div className="font-mono text-xl text-fg tabular-nums">
-              {(campaign.metrics.conversion_rate * 100).toFixed(1)}%
-            </div>
-            <div className="text-[10px] uppercase tracking-label text-fg-subtle">conversión</div>
-          </div>
-
-          <div className="text-right">
-            <div className="font-mono text-xl text-accent tabular-nums">
-              {formatARS(campaign.metrics.revenue_attributed)}
-            </div>
-            <div className="text-[10px] uppercase tracking-label text-fg-subtle">revenue</div>
-          </div>
-
-          <div className="text-right">
-            <span className="text-[11px] uppercase tracking-[0.12em] text-fg-muted group-hover:text-accent transition-colors">
-              Abrir &nbsp;→
+            <span
+              className="inline-flex items-center gap-1.5 text-[10.5px] uppercase font-[600] px-3 py-1.5 transition-colors group-hover:bg-[var(--k-green)] group-hover:text-[var(--bg)] group-hover:border-[var(--k-green)]"
+              style={{
+                letterSpacing: '0.16em',
+                border: '1px solid var(--fg)',
+                color: 'var(--fg)',
+                fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
+              }}
+            >
+              Abrir
+              <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </span>
           </div>
         </div>
       </Link>
     </motion.div>
+  );
+}
+
+function Metric({
+  value,
+  label,
+  anchor = false,
+}: {
+  value: React.ReactNode;
+  label: string;
+  anchor?: boolean;
+}) {
+  return (
+    <div className="text-right">
+      <div
+        className="font-mono tabular-nums"
+        style={{
+          fontSize: '18px',
+          color: anchor ? 'var(--accent)' : 'var(--fg)',
+          fontWeight: anchor ? 600 : 400,
+          letterSpacing: '-0.005em',
+        }}
+      >
+        {value}
+      </div>
+      <div
+        className="text-[9.5px] uppercase mt-0.5"
+        style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
+      >
+        {label}
+      </div>
+    </div>
   );
 }
