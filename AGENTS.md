@@ -4,7 +4,7 @@ Este archivo es la **fuente de verdad** para cualquier agente (Claude Code, Curs
 
 ---
 
-## 1. Producto — Revenue Autopilot (know-how Woki)
+## 1. Producto — Revenue Autopilot
 
 **Qué es.** Sistema autónomo de generación de ingresos para restaurantes. Diagnostica la base de clientes, detecta oportunidades de revenue, y actúa. **El restaurante aprueba, el sistema hace el resto.**
 
@@ -12,7 +12,7 @@ Este archivo es la **fuente de verdad** para cualquier agente (Claude Code, Curs
 
 **Posicionamiento.** Revenue Autopilot, no un CRM ni un campaign builder. Tagline mental: *Detecta oportunidades de revenue. Decide la acción óptima. Ejecuta a través de canales directos.*
 
-**Modelo mental (tomado de Woki).** Todo flujo sigue esta pipeline:
+**Modelo mental.** Todo flujo sigue esta pipeline:
 
 ```
 CDP  ───▶  Trigger  ───▶  Audience  ───▶  Workflow  ───▶  Metrics
@@ -146,7 +146,6 @@ Si no podés correr alguno de estos pasos, decilo explícitamente en la respuest
 
 ## 6. Referencias
 
-- Know-how de producto en vivo: <https://woki-marketing-automation.vercel.app/> y <https://woki-marketing-automation.vercel.app/demo>.
 - Guía Red-Green TDD: <https://simonwillison.net/guides/agentic-engineering-patterns/red-green-tdd/>.
 - Plan hora-por-hora del hackathon: [`HACKATHON_PLAN.md`](./HACKATHON_PLAN.md).
 - Stack y quickstart: [`README.md`](./README.md).

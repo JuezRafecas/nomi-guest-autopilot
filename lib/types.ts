@@ -44,7 +44,7 @@ export interface Visit {
 
 export type Segment = 'lead' | 'new' | 'active' | 'at_risk' | 'dormant' | 'vip';
 
-/** Value-tier alias used in audience definitions (Woki vocabulary). */
+/** Value-tier alias used in audience definitions. */
 export type AudienceTier = 'vip' | 'frequent' | 'occasional';
 
 export interface GuestProfile {

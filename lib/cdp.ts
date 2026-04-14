@@ -1,9 +1,9 @@
 // ============================================================================
-// Woki CDP — raw CSV row types + parsers.
+// CDP — raw CSV row types + parsers.
 //
-// Fuente: exports de Woki para La Cabrera (tres CSVs).
+// Fuente: exports del partner CDP para La Cabrera (tres CSVs).
 // Estos tipos reflejan la forma del CSV 1:1, sin reinterpretación.
-// Un mapper separado (`wokiGuestPartnerToProfile`) traduce al dominio.
+// Un mapper separado (`cdpGuestPartnerToProfile`) traduce al dominio.
 // ============================================================================
 
 import Papa from 'papaparse';
@@ -65,8 +65,8 @@ export interface WaitlistInsights {
 
 // ---------- la_cabrera_cdp_visit.csv ---------------------------------------
 
-export type WokiVisitType = 'RESERVATION' | 'WALKIN' | string;
-export type WokiVisitState =
+export type CdpVisitType = 'RESERVATION' | 'WALKIN' | string;
+export type CdpVisitState =
   | 'ACCEPTED'
   | 'CONFIRMED'
   | 'SEATED'
@@ -77,17 +77,17 @@ export type WokiVisitState =
   | 'PENDING'
   | string;
 
-export interface WokiVisitRow {
+export interface CdpVisitRow {
   visit_id: string;
   tenant: string;
   partner_id: string;
-  visit_type: WokiVisitType;
+  visit_type: CdpVisitType;
   party_size: number | null;
   party_size_seated: number | null;
   sector_name: string | null;
   channel: string | null;
   platform: string | null;
-  state: WokiVisitState | null;
+  state: CdpVisitState | null;
   visit_outcome: string | null;
   guest_comment: string | null;
   venue_comment: string | null;
@@ -121,7 +121,7 @@ export interface WokiVisitRow {
 
 // ---------- la_cabrera_guest_partner.csv -----------------------------------
 
-export interface WokiGuestPartnerRow {
+export interface CdpGuestPartnerRow {
   guest_partner_id: string;
   tenant: string;
   partner_id: string;
@@ -199,7 +199,7 @@ export interface WokiGuestPartnerRow {
 // Cross-brand unified guest. Útil para dedup entre restaurantes,
 // no se usa en el MVP single-tenant.
 
-export interface WokiGuestUnifiedRow {
+export interface CdpGuestUnifiedRow {
   guest_id: string;
   name: string | null;
   primary_email: string | null;
@@ -287,7 +287,7 @@ const numOr = (v: Raw, fallback: number): number => num(v) ?? fallback;
 const bool = (v: Raw): boolean => str(v)?.toLowerCase() === 'true';
 
 /**
- * Woki exporta fechas envueltas en comillas: el CSV trae `"""ISO"""`, que
+ * El CDP exporta fechas envueltas en comillas: el CSV trae `"""ISO"""`, que
  * papaparse decodea a `"ISO"` (con las comillas literales). Acá las sacamos.
  */
 const date = (v: Raw): string | null => {
@@ -330,9 +330,9 @@ function parseCsv<T extends Record<string, string>>(csv: string): T[] {
 
 // ---------- Parsers ---------------------------------------------------------
 
-export function parseWokiVisitCsv(csv: string): WokiVisitRow[] {
+export function parseCdpVisitCsv(csv: string): CdpVisitRow[] {
   return parseCsv(csv).map(
-    (r): WokiVisitRow => ({
+    (r): CdpVisitRow => ({
       visit_id: r.visit_id ?? '',
       tenant: r.tenant ?? '',
       partner_id: r.partner_id ?? '',
@@ -376,9 +376,9 @@ export function parseWokiVisitCsv(csv: string): WokiVisitRow[] {
   );
 }
 
-export function parseWokiGuestPartnerCsv(csv: string): WokiGuestPartnerRow[] {
+export function parseCdpGuestPartnerCsv(csv: string): CdpGuestPartnerRow[] {
   return parseCsv(csv).map(
-    (r): WokiGuestPartnerRow => ({
+    (r): CdpGuestPartnerRow => ({
       guest_partner_id: r.guest_partner_id ?? '',
       tenant: r.tenant ?? '',
       partner_id: r.partner_id ?? '',
@@ -459,13 +459,13 @@ export function parseWokiGuestPartnerCsv(csv: string): WokiGuestPartnerRow[] {
 /**
  * Traduce una fila de `guest_partner` al `GuestProfile` de dominio.
  *
- * Woki ya trae los agregados calculados (no_show_rate, preferred_shift, etc.),
+ * El CDP ya trae los agregados calculados (no_show_rate, preferred_shift, etc.),
  * así que el mapper es casi un rename. Los campos derivados (RFM, segment,
  * tier) los deja como placeholders: el motor de segmentación en `lib/segmentation.ts`
  * los asigna a partir de recency/frequency/monetary.
  */
-export function wokiGuestPartnerToProfile(
-  row: WokiGuestPartnerRow,
+export function cdpGuestPartnerToProfile(
+  row: CdpGuestPartnerRow,
   restaurantId: string,
 ): GuestProfile {
   const avgPartySize =
@@ -514,4 +514,3 @@ export function wokiGuestPartnerToProfile(
     calculated_at: row.calculated_at ?? new Date().toISOString(),
   };
 }
-

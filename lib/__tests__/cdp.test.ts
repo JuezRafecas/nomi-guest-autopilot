@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import type { WokiGuestPartnerRow } from '../woki';
+import type { CdpGuestPartnerRow } from '../cdp';
 import {
-  parseWokiGuestPartnerCsv,
-  parseWokiVisitCsv,
-  wokiGuestPartnerToProfile,
-} from '../woki';
+  parseCdpGuestPartnerCsv,
+  parseCdpVisitCsv,
+  cdpGuestPartnerToProfile,
+} from '../cdp';
 
-describe('parseWokiVisitCsv', () => {
+describe('parseCdpVisitCsv', () => {
   it('parsea una reserva con fechas entre comillas triples, tags vacíos y has_guarantee boolean', () => {
     // Fila tomada de la_cabrera_cdp_visit.csv (con las triple-comillas del export).
     const csv = [
       'visit_id,tenant,partner_id,visit_type,party_size,party_size_seated,sector_name,channel,platform,state,visit_outcome,guest_comment,venue_comment,tags,arrived_at,departed_at,score,review_food_rating,review_service_rating,review_ambience_rating,review_overall_rating,review_comment,review_venue_reply,review_tags,review_visit_type,review_likes_count,review_dislikes_count,discount_percentage,visited_at,has_guarantee,guarantee_amount,cancelled_by,cancelled_at,confirmed_at,accepted_at,no_show_at,rejected_at,shift_id,source_state',
-      '69b03705dc7dc47bd1858838,woki,8e585a67-6da9-4c8a-b6ca-47c25674bfd3,RESERVATION,3,,Salon sur,QUICK_ADD,,ACCEPTED,PENDING,,,[],,,,,,,,,,,,,,,"""2026-07-19T17:30:00.000Z""",false,,,,,"""2026-03-10T15:21:40.553Z""",,,de16dba8-e73d-4070-bd5d-c880cfd661f8,4',
+      '69b03705dc7dc47bd1858838,partner,8e585a67-6da9-4c8a-b6ca-47c25674bfd3,RESERVATION,3,,Salon sur,QUICK_ADD,,ACCEPTED,PENDING,,,[],,,,,,,,,,,,,,,"""2026-07-19T17:30:00.000Z""",false,,,,,"""2026-03-10T15:21:40.553Z""",,,de16dba8-e73d-4070-bd5d-c880cfd661f8,4',
     ].join('\n');
 
-    const rows = parseWokiVisitCsv(csv);
+    const rows = parseCdpVisitCsv(csv);
 
     expect(rows).toHaveLength(1);
     const row = rows[0]!;
@@ -34,7 +34,7 @@ describe('parseWokiVisitCsv', () => {
   });
 });
 
-describe('parseWokiGuestPartnerCsv', () => {
+describe('parseCdpGuestPartnerCsv', () => {
   it('parsea agregados numéricos, insights JSON, arrays y fechas triple-quoted', () => {
     const header =
       'guest_partner_id,tenant,partner_id,brand_id,guest_name,guest_email,guest_language,location_name,location_categories,location_city,partner_tags,special_relationship,food_restrictions,total_visits,total_walkins,total_bookings,total_pending,total_no_shows,total_cancellations,total_rejected,no_show_rate,cancellation_rate,rejection_rate,booking_conversion_rate,confirmation_rate,guarantee_insights,cancellation_insights,review_insights,channel_insights,waitlist_insights,preferred_visit_context,total_lead_time_minutes,completed_booking_count,total_score,scored_visit_count,last_score,last_scored_at,last_lead_time_minutes,last_review_rating,total_party_size,party_size_count,total_seated_guests,seated_visit_count,total_guests_brought,is_favorite,preferred_visit_type,preferred_platform,booking_tags,preferred_shift,preferred_day_of_week,preferred_sector,preferred_channel,first_booking_channel,direct_booking_rate,direct_booking_count,total_venue_notes,is_banned,first_visit_at,last_visit_at,days_since_last,total_days_between_visits,visit_gap_count,next_visit_at,days_until_next,calculated_at,review_experience_tags,avg_discount_percentage,total_discounted_visits,last_booking_channel,is_highlighted,source';
@@ -42,9 +42,9 @@ describe('parseWokiGuestPartnerCsv', () => {
     // Reducción de una fila real de la_cabrera_guest_partner.csv: 24 visitas,
     // 3 cancelaciones, insights con totales, array de categorías, fechas envueltas.
     const row =
-      'CC5AB85BC1790384FA650EF5306B3414,woki,8e585a67-6da9-4c8a-b6ca-47c25674bfd3,,Guest 51854,guest51854@demo.com,,La Cabrera Palermo,"[""grill"",""steakhouse"",""argentine-cuisine""]",Palermo,[],,,24,0,27,0,0,3,0,0,0.1111,0,0.8889,0.8889,"{""lastAt"":null,""bookings"":[],""totalAmount"":305882.33,""totalBookings"":13}","{""lastAt"":null,""lastBy"":""VENUE"",""cancellations"":[],""cancelledByGuest"":0,""cancelledByVenue"":3,""totalCancellations"":3}","{""reviews"":[],""totalRating"":0,""totalReviews"":0,""foodRatingCount"":0,""totalFoodRating"":0,""serviceRatingCount"":0,""totalServiceRating"":0,""ambienceRatingCount"":0,""totalAmbienceRating"":0}","{""channelMigrated"":false,""directBookingRate"":0,""lastBookingChannel"":""QUICK_ADD"",""firstBookingChannel"":""QUICK_ADD"",""preferredBookingChannel"":""QUICK_ADD""}","{""lastAt"":null,""expired"":0,""firstAt"":null,""pending"":0,""conversions"":0,""totalEntries"":0,""cancellations"":0,""conversionRate"":0}",,115246,24,0,0,,,243,,122,24,16,2,122,false,BOOKING,,[],cena,wednesday,Salon sur,QUICK_ADD,QUICK_ADD,0,0,26,false,"""2025-05-21T23:30:00.000Z""","""2026-03-18T23:30:00.000Z""",21,301,23,,,"""2026-04-09T19:56:26.666Z""",[],,0,QUICK_ADD,false,pipeline';
+      'CC5AB85BC1790384FA650EF5306B3414,partner,8e585a67-6da9-4c8a-b6ca-47c25674bfd3,,Guest 51854,guest51854@demo.com,,La Cabrera Palermo,"[""grill"",""steakhouse"",""argentine-cuisine""]",Palermo,[],,,24,0,27,0,0,3,0,0,0.1111,0,0.8889,0.8889,"{""lastAt"":null,""bookings"":[],""totalAmount"":305882.33,""totalBookings"":13}","{""lastAt"":null,""lastBy"":""VENUE"",""cancellations"":[],""cancelledByGuest"":0,""cancelledByVenue"":3,""totalCancellations"":3}","{""reviews"":[],""totalRating"":0,""totalReviews"":0,""foodRatingCount"":0,""totalFoodRating"":0,""serviceRatingCount"":0,""totalServiceRating"":0,""ambienceRatingCount"":0,""totalAmbienceRating"":0}","{""channelMigrated"":false,""directBookingRate"":0,""lastBookingChannel"":""QUICK_ADD"",""firstBookingChannel"":""QUICK_ADD"",""preferredBookingChannel"":""QUICK_ADD""}","{""lastAt"":null,""expired"":0,""firstAt"":null,""pending"":0,""conversions"":0,""totalEntries"":0,""cancellations"":0,""conversionRate"":0}",,115246,24,0,0,,,243,,122,24,16,2,122,false,BOOKING,,[],cena,wednesday,Salon sur,QUICK_ADD,QUICK_ADD,0,0,26,false,"""2025-05-21T23:30:00.000Z""","""2026-03-18T23:30:00.000Z""",21,301,23,,,"""2026-04-09T19:56:26.666Z""",[],,0,QUICK_ADD,false,pipeline';
 
-    const rows = parseWokiGuestPartnerCsv([header, row].join('\n'));
+    const rows = parseCdpGuestPartnerCsv([header, row].join('\n'));
 
     expect(rows).toHaveLength(1);
     const r = rows[0]!;
@@ -77,10 +77,10 @@ describe('parseWokiGuestPartnerCsv', () => {
   });
 });
 
-describe('wokiGuestPartnerToProfile', () => {
-  const baseRow: WokiGuestPartnerRow = {
+describe('cdpGuestPartnerToProfile', () => {
+  const baseRow: CdpGuestPartnerRow = {
     guest_partner_id: 'GP123',
-    tenant: 'woki',
+    tenant: 'partner',
     partner_id: 'partner-1',
     brand_id: null,
     guest_name: 'Guest 51854',
@@ -157,8 +157,8 @@ describe('wokiGuestPartnerToProfile', () => {
     source: 'pipeline',
   };
 
-  it('mapea los agregados de Woki al shape del GuestProfile de dominio', () => {
-    const profile = wokiGuestPartnerToProfile(baseRow, 'rest-42');
+  it('mapea los agregados del CDP al shape del GuestProfile de dominio', () => {
+    const profile = cdpGuestPartnerToProfile(baseRow, 'rest-42');
 
     expect(profile.restaurant_id).toBe('rest-42');
     expect(profile.guest_id).toBe('GP123');
@@ -186,7 +186,7 @@ describe('wokiGuestPartnerToProfile', () => {
   });
 
   it('maneja gracefully guest sin visitas ni insights', () => {
-    const empty: WokiGuestPartnerRow = {
+    const empty: CdpGuestPartnerRow = {
       ...baseRow,
       total_visits: 0,
       total_party_size: null,
@@ -200,7 +200,7 @@ describe('wokiGuestPartnerToProfile', () => {
       calculated_at: null,
     };
 
-    const profile = wokiGuestPartnerToProfile(empty, 'rest-42');
+    const profile = cdpGuestPartnerToProfile(empty, 'rest-42');
 
     expect(profile.total_visits).toBe(0);
     expect(profile.avg_days_between_visits).toBeNull();
@@ -209,7 +209,7 @@ describe('wokiGuestPartnerToProfile', () => {
     expect(profile.avg_amount).toBeNull();
     expect(profile.first_visit_at).toBeNull();
     expect(profile.last_visit_at).toBeNull();
-    // calculated_at debe caer a "ahora" cuando Woki no lo trae.
+    // calculated_at debe caer a "ahora" cuando el CDP no lo trae.
     expect(profile.calculated_at).toEqual(expect.any(String));
   });
 });
