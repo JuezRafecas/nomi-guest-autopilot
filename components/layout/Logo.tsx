@@ -11,7 +11,7 @@ export function Logo({ className }: { className?: string }) {
         className="font-display text-[22px] leading-none text-accent -mt-1"
         style={{ fontVariationSettings: '"opsz" 144, "SOFT" 20' }}
       >
-        Journal
+        Autopilot
       </div>
     </div>
   );
