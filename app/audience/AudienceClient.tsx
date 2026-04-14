@@ -15,8 +15,34 @@ import type { Segment, SegmentSummary } from '@/lib/types';
 import type { GuestRow } from '@/lib/api';
 
 type Scope = 'all' | Segment;
+type SortKey = 'visits' | 'spent' | 'recent' | 'inactive';
 
 const VALID_SEGMENTS = new Set<string>(SEGMENT_ORDER);
+
+const SORT_OPTIONS: Array<{ value: SortKey; label: string }> = [
+  { value: 'visits', label: 'Most visits' },
+  { value: 'spent', label: 'Top spend' },
+  { value: 'recent', label: 'Most recent' },
+  { value: 'inactive', label: 'Most inactive' },
+];
+
+const MIN_VISITS_OPTIONS: Array<{ value: number; label: string }> = [
+  { value: 0, label: 'Any' },
+  { value: 2, label: '2+' },
+  { value: 5, label: '5+' },
+  { value: 10, label: '10+' },
+];
+
+function sortGuests(rows: GuestRow[], sort: SortKey): GuestRow[] {
+  const arr = [...rows];
+  arr.sort((a, b) => {
+    if (sort === 'visits') return b.total_visits - a.total_visits;
+    if (sort === 'spent') return b.total_spent - a.total_spent;
+    if (sort === 'recent') return a.days_since_last - b.days_since_last;
+    return b.days_since_last - a.days_since_last;
+  });
+  return arr;
+}
 
 export function AudienceClient({
   summaries,
@@ -34,6 +60,9 @@ export function AudienceClient({
   const initialScope: Scope =
     initial && VALID_SEGMENTS.has(initial) ? (initial as Segment) : 'all';
   const [scope, setScope] = useState<Scope>(initialScope);
+  const [sort, setSort] = useState<SortKey>('visits');
+  const [minVisits, setMinVisits] = useState<number>(0);
+  const [search, setSearch] = useState('');
 
   const counts = useMemo(() => {
     const map: Record<string, number> = { all: guests.length };
@@ -43,10 +72,13 @@ export function AudienceClient({
     return map;
   }, [guests]);
 
-  const filtered = useMemo(
-    () => (scope === 'all' ? guests : guests.filter((g) => g.segment === scope)),
-    [scope, guests]
-  );
+  const filtered = useMemo(() => {
+    let rows = scope === 'all' ? guests : guests.filter((g) => g.segment === scope);
+    if (minVisits > 0) rows = rows.filter((g) => g.total_visits >= minVisits);
+    const q = search.trim().toLowerCase();
+    if (q) rows = rows.filter((g) => g.name.toLowerCase().includes(q));
+    return sortGuests(rows, sort);
+  }, [scope, guests, minVisits, search, sort]);
 
   const filterOptions: FilterOption[] = useMemo(() => {
     const base: FilterOption[] = [
@@ -108,14 +140,91 @@ export function AudienceClient({
             onChange={(v) => setScope(v as Scope)}
           />
         </div>
+
+        <div className="mt-4 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span
+              className="text-[10px] uppercase tracking-label"
+              style={{ color: 'var(--fg-subtle)', letterSpacing: '0.16em' }}
+            >
+              Sort
+            </span>
+            {SORT_OPTIONS.map((opt) => {
+              const active = sort === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setSort(opt.value)}
+                  className="font-mono text-[10px] uppercase px-2.5 py-1.5 transition-colors"
+                  style={{
+                    letterSpacing: '0.12em',
+                    color: active ? 'var(--fg)' : 'var(--fg-subtle)',
+                    border: '1px solid',
+                    borderColor: active ? 'var(--fg)' : 'var(--hairline-strong)',
+                    background: active ? 'var(--bg-raised)' : 'transparent',
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <span
+              className="text-[10px] uppercase tracking-label"
+              style={{ color: 'var(--fg-subtle)', letterSpacing: '0.16em' }}
+            >
+              Visits
+            </span>
+            {MIN_VISITS_OPTIONS.map((opt) => {
+              const active = minVisits === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setMinVisits(opt.value)}
+                  className="font-mono text-[10px] uppercase px-2.5 py-1.5 transition-colors"
+                  style={{
+                    letterSpacing: '0.12em',
+                    color: active ? 'var(--fg)' : 'var(--fg-subtle)',
+                    border: '1px solid',
+                    borderColor: active ? 'var(--fg)' : 'var(--hairline-strong)',
+                    background: active ? 'var(--bg-raised)' : 'transparent',
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex-1 md:max-w-[280px]">
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name…"
+              aria-label="Search guests by name"
+              className="w-full bg-transparent px-3 py-2 text-[12px] focus:outline-none"
+              style={{
+                fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
+                color: 'var(--fg)',
+                border: '1px solid var(--hairline-strong)',
+                letterSpacing: '-0.005em',
+              }}
+            />
+          </div>
+        </div>
       </section>
 
       <section className="editorial-container pb-24">
         {filtered.length === 0 ? (
           <div className="border-t border-hairline">
             <EmptyState
-              title="No one in this segment."
-              hint="Try another segment or wait for new guests to land in the base."
+              title="No one matches these filters."
+              hint="Loosen the filters or try a different segment."
             />
           </div>
         ) : (
