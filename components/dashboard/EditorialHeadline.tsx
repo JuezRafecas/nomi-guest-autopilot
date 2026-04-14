@@ -1,7 +1,10 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/cn';
+
+const SEEN_KEY = 'nomi:headline-seen';
 
 interface Props {
   prefix: string;
@@ -13,6 +16,18 @@ interface Props {
 export function EditorialHeadline({ prefix, highlight, suffix, className }: Props) {
   const prefixWords = prefix.split(' ');
   const suffixWords = suffix.split(' ');
+
+  const [skip, setSkip] = useState(true); // default to skip (no flash)
+  useEffect(() => {
+    const seen = sessionStorage.getItem(SEEN_KEY);
+    if (!seen) {
+      setSkip(false);
+      sessionStorage.setItem(SEEN_KEY, '1');
+    }
+  }, []);
+
+  const initial = skip ? false : { opacity: 0, y: 12 };
+  const highlightInitial = skip ? false : { opacity: 0, y: 14 };
 
   return (
     <div className={cn('flex flex-col gap-4', className)}>
@@ -38,9 +53,9 @@ export function EditorialHeadline({ prefix, highlight, suffix, className }: Prop
         {prefixWords.map((word, i) => (
           <motion.span
             key={`p-${i}`}
-            initial={{ opacity: 0, y: 12 }}
+            initial={initial}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: i * 0.05, ease: [0.2, 0.7, 0.2, 1] }}
+            transition={skip ? { duration: 0 } : { duration: 0.55, delay: i * 0.05, ease: [0.2, 0.7, 0.2, 1] }}
             className="inline-block"
           >
             {word}
@@ -49,9 +64,9 @@ export function EditorialHeadline({ prefix, highlight, suffix, className }: Prop
         ))}
 
         <motion.span
-          initial={{ opacity: 0, y: 14 }}
+          initial={highlightInitial}
           animate={{ opacity: 1, y: 0 }}
-          transition={{
+          transition={skip ? { duration: 0 } : {
             duration: 0.7,
             delay: prefixWords.length * 0.05 + 0.1,
             ease: [0.2, 0.7, 0.2, 1],
@@ -69,9 +84,9 @@ export function EditorialHeadline({ prefix, highlight, suffix, className }: Prop
         {suffixWords.map((word, i) => (
           <motion.span
             key={`s-${i}`}
-            initial={{ opacity: 0, y: 12 }}
+            initial={initial}
             animate={{ opacity: 1, y: 0 }}
-            transition={{
+            transition={skip ? { duration: 0 } : {
               duration: 0.55,
               delay: (prefixWords.length + 1 + i) * 0.05 + 0.1,
               ease: [0.2, 0.7, 0.2, 1],

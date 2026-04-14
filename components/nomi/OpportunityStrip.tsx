@@ -36,7 +36,7 @@ export function OpportunityStrip({
       >
         <div
           className="k-label mb-1"
-          style={{ color: 'var(--accent-dim)', fontSize: 9.5 }}
+          style={{ color: 'var(--accent-dim)', fontSize: 10 }}
         >
           Couldn't read your CDP
         </div>
@@ -73,7 +73,7 @@ export function OpportunityStrip({
           className="k-label shrink-0"
           style={{
             color: 'var(--k-green)',
-            fontSize: 9.5,
+            fontSize: 10,
             letterSpacing: '0.16em',
           }}
         >
@@ -94,7 +94,7 @@ export function OpportunityStrip({
         <span
           className="k-mono shrink-0"
           style={{
-            fontSize: 9.5,
+            fontSize: 10,
             letterSpacing: '0.14em',
             color: 'var(--fg-subtle)',
             textTransform: 'uppercase',
@@ -115,7 +115,7 @@ export function OpportunityStrip({
             className="k-label"
             style={{
               color: 'var(--k-green)',
-              fontSize: 9.5,
+              fontSize: 10,
               letterSpacing: '0.16em',
             }}
           >
@@ -128,7 +128,7 @@ export function OpportunityStrip({
             onClick={() => setExpanded(false)}
             className="k-mono"
             style={{
-              fontSize: 9.5,
+              fontSize: 10,
               letterSpacing: '0.14em',
               color: 'var(--fg-subtle)',
               textTransform: 'uppercase',

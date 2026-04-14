@@ -34,7 +34,7 @@ export function RevenueOpportunity({
       <div className="editorial-container grid grid-cols-1 md:grid-cols-[auto_1fr] gap-12 items-end">
         <div>
           <div
-            className="mb-4 text-[10.5px] uppercase font-[600]"
+            className="mb-4 text-[11px] uppercase font-[600]"
             style={{
               letterSpacing: '0.18em',
               color: 'var(--k-green, #0e5e48)',
@@ -98,7 +98,7 @@ export function RevenueOpportunity({
       {hasBreakdown && (
         <div className="editorial-container mt-14 md:mt-16">
           <div
-            className="mb-4 text-[10.5px] uppercase font-[600]"
+            className="mb-4 text-[11px] uppercase font-[600]"
             style={{
               letterSpacing: '0.18em',
               color: 'var(--k-green, #0e5e48)',
@@ -170,7 +170,7 @@ function MobileRevenue({ value }: { value: number }) {
         <Numeral value={value} format="ars" />
       </div>
       <div
-        className="text-[9.5px] uppercase mt-0.5"
+        className="text-[10px] uppercase mt-0.5"
         style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
       >
         revenue
@@ -192,7 +192,7 @@ function BreakdownStat({ value, label }: { value: number; label: string }) {
         <Numeral value={value} />
       </div>
       <div
-        className="text-[9.5px] uppercase mt-0.5"
+        className="text-[10px] uppercase mt-0.5"
         style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
       >
         {label}

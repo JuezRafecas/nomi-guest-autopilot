@@ -120,7 +120,7 @@ export function MessageInboxRow({
         {pending ? (
           <div className="hidden md:flex items-center justify-end gap-1.5 opacity-100 md:group-hover:opacity-0 md:group-focus-within:opacity-0 transition-opacity">
             <span
-              className="font-mono text-[10.5px] uppercase"
+              className="font-mono text-[11px] uppercase"
               style={{ letterSpacing: '0.14em', color: 'var(--accent-dim)', fontWeight: 600 }}
             >
               Approve
@@ -173,7 +173,7 @@ export function MessageInboxRow({
       {/* Mobile status + action cluster */}
       <div className="md:hidden col-span-2 flex items-center justify-between gap-3 mt-2">
         <div
-          className="flex items-center gap-2 text-[10.5px] uppercase tracking-label"
+          className="flex items-center gap-2 text-[11px] uppercase tracking-label"
           style={{ color: tokens.text, fontWeight: tokens.weight ?? 500 }}
         >
           <span

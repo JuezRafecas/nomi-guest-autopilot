@@ -111,7 +111,7 @@ export function CampaignDraftCard({ draft, currency = 'ARS' }: CampaignDraftCard
             borderTop: '1px solid var(--hairline)',
           }}
         >
-          <div className="k-label mb-1" style={{ color: 'var(--fg-subtle)', fontSize: 9.5 }}>
+          <div className="k-label mb-1" style={{ color: 'var(--fg-subtle)', fontSize: 10 }}>
             Why
           </div>
           <p
@@ -201,7 +201,7 @@ function DraftRow({
       className="px-6 py-3 grid grid-cols-[110px_1fr] gap-4 items-baseline"
       style={{ borderTop: '1px solid var(--hairline)' }}
     >
-      <div className="k-label" style={{ color: 'var(--fg-subtle)', fontSize: 9.5 }}>
+      <div className="k-label" style={{ color: 'var(--fg-subtle)', fontSize: 10 }}>
         {label}
       </div>
       <div

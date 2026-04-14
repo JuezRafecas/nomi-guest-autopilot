@@ -80,7 +80,7 @@ export function PendingApprovalsHero({ messages }: Props) {
         </div>
         {remaining > 0 && (
           <span
-            className="inline-flex items-center gap-2 text-[10.5px] uppercase font-[600] px-4 py-2 self-start md:self-auto"
+            className="inline-flex items-center gap-2 text-[11px] uppercase font-[600] px-4 py-2 self-start md:self-auto"
             style={{
               letterSpacing: '0.16em',
               border: '1px solid var(--fg)',

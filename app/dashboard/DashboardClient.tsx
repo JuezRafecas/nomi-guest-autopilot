@@ -145,7 +145,7 @@ export function DashboardClient({
           </div>
           <Link
             href="/campaigns"
-            className="inline-flex items-center gap-2 text-[10.5px] uppercase font-[600] px-4 py-2 transition-colors self-start md:self-auto k-outline-cta"
+            className="inline-flex items-center gap-2 text-[11px] uppercase font-[600] px-4 py-2 transition-colors self-start md:self-auto k-outline-cta"
             style={{
               letterSpacing: '0.16em',
               border: '1px solid var(--fg)',

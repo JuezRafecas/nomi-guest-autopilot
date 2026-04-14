@@ -35,7 +35,7 @@ export function CampaignRow({ campaign, index = 0 }: { campaign: Campaign; index
             <div className="flex items-center gap-3 mb-1.5">
               <CampaignStatusBadge status={campaign.status} animated />
               <span
-                className="text-[9.5px] uppercase"
+                className="text-[10px] uppercase"
                 style={{
                   letterSpacing: '0.16em',
                   color: 'var(--fg-subtle)',
@@ -100,7 +100,7 @@ export function CampaignRow({ campaign, index = 0 }: { campaign: Campaign; index
 
           <div className="text-right">
             <span
-              className="inline-flex items-center gap-1.5 text-[10.5px] uppercase font-[600] px-3 py-1.5 transition-colors group-hover:bg-[var(--fg)] group-hover:text-[var(--bg)]"
+              className="inline-flex items-center gap-1.5 text-[11px] uppercase font-[600] px-3 py-1.5 transition-colors group-hover:bg-[var(--fg)] group-hover:text-[var(--bg)]"
               style={{
                 letterSpacing: '0.16em',
                 border: '1.5px solid var(--fg)',
@@ -173,7 +173,7 @@ function Metric({
         {value}
       </div>
       <div
-        className="text-[9.5px] uppercase mt-0.5"
+        className="text-[10px] uppercase mt-0.5"
         style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
       >
         {label}

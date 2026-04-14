@@ -92,7 +92,7 @@ function StripStat({
         <Numeral value={value} format={format} />
       </div>
       <div
-        className="text-[9.5px] uppercase mt-1"
+        className="text-[10px] uppercase mt-1"
         style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
       >
         {label}

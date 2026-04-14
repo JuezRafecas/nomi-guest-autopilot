@@ -258,7 +258,7 @@ function IntegrationCard({
         <ToggleSwitch on={on} onToggle={onToggle} label={integration.name} />
       ) : (
         <span
-          className="font-mono text-[9.5px] uppercase shrink-0 px-2 py-1"
+          className="font-mono text-[10px] uppercase shrink-0 px-2 py-1"
           style={{
             letterSpacing: '0.16em',
             color: 'var(--fg-subtle)',

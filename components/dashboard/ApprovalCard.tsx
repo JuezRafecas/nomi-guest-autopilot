@@ -100,7 +100,7 @@ export function ApprovalCard({ message, onApprove, onPass }: Props) {
         <div className="shrink-0 flex flex-col items-end gap-1.5">
           <ChannelBadge isWhatsApp={isWhatsApp} label={channelLabel(message.channel)} />
           <div
-            className="text-[9.5px] uppercase font-mono tabular-nums"
+            className="text-[10px] uppercase font-mono tabular-nums"
             style={{ letterSpacing: '0.08em', color: 'var(--fg-subtle)' }}
           >
             {timeAgo(message.created_at)}
@@ -147,7 +147,7 @@ export function ApprovalCard({ message, onApprove, onPass }: Props) {
             type="button"
             onClick={() => onApprove(message.id)}
             aria-label={`Approve message for ${message.guest_name}`}
-            className="inline-flex items-center gap-1.5 h-8 px-3 text-[10.5px] uppercase font-[600] transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-1.5 h-8 px-3 text-[11px] uppercase font-[600] transition-opacity hover:opacity-90"
             style={{
               letterSpacing: '0.16em',
               border: '1px solid var(--fg)',
@@ -162,7 +162,7 @@ export function ApprovalCard({ message, onApprove, onPass }: Props) {
             type="button"
             onClick={() => onPass(message.id)}
             aria-label={`Pass on message for ${message.guest_name}`}
-            className="inline-flex items-center h-8 px-3 text-[10.5px] uppercase font-[600] transition-colors"
+            className="inline-flex items-center h-8 px-3 text-[11px] uppercase font-[600] transition-colors"
             style={{
               letterSpacing: '0.16em',
               border: '1px solid var(--hairline-strong)',
@@ -206,7 +206,7 @@ export function ApprovalCard({ message, onApprove, onPass }: Props) {
 function ChannelBadge({ isWhatsApp, label }: { isWhatsApp: boolean; label: string }) {
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[9.5px] uppercase font-[600]"
+      className="inline-flex items-center gap-1.5 px-1.5 py-0.5 text-[10px] uppercase font-[600]"
       style={{
         letterSpacing: '0.12em',
         color: isWhatsApp ? 'var(--bg)' : 'var(--fg-muted)',

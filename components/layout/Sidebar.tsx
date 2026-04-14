@@ -10,14 +10,14 @@ import { MOCK_RESTAURANT } from '@/lib/mock';
 const NAV = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/hub', label: 'Nomi · Hub', live: true },
-  { href: '/campaigns', label: 'Campañas' },
-  { href: '/templates', label: 'Plantillas' },
-  { href: '/audience', label: 'Audiencia' },
-  { href: '/messages', label: 'Mensajes', badgeKey: 'pending' as const },
+  { href: '/campaigns', label: 'Campaigns' },
+  { href: '/templates', label: 'Templates' },
+  { href: '/audience', label: 'Audience' },
+  { href: '/messages', label: 'Messages', badgeKey: 'pending' as const },
   { href: '/revenue', label: 'Revenue' },
-  { href: '/integrations', label: 'Integraciones' },
-  { href: '/settings', label: 'Configuración' },
-  { href: '/upload', label: 'Subir datos' },
+  { href: '/integrations', label: 'Integrations' },
+  { href: '/settings', label: 'Settings' },
+  { href: '/upload', label: 'Upload Data' },
 ];
 
 interface SidebarProps {
@@ -46,7 +46,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose, pendingCount = 0 }:
           <Logo />
         </Link>
         <div
-          className="mt-3 font-mono text-[9.5px] uppercase"
+          className="mt-3 font-mono text-[10px] uppercase"
           style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
         >
           {MOCK_RESTAURANT.name}

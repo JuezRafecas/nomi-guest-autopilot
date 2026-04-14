@@ -83,7 +83,7 @@ export function SegmentRow({
               <Numeral value={summary.count} />
             </div>
             <div
-              className="text-[9.5px] uppercase mt-0.5"
+              className="text-[10px] uppercase mt-0.5"
               style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
             >
               guests
@@ -117,7 +117,7 @@ export function SegmentRow({
               {formatARS(summary.revenue_opportunity)}
             </div>
             <div
-              className="text-[9.5px] uppercase mt-0.5"
+              className="text-[10px] uppercase mt-0.5"
               style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
             >
               opportunity
@@ -126,7 +126,7 @@ export function SegmentRow({
 
           <div className="text-right">
             <span
-              className="inline-flex items-center gap-1.5 text-[10.5px] uppercase font-[600] px-3 py-1.5 transition-colors group-hover:bg-[var(--k-green)] group-hover:text-[var(--bg)] group-hover:border-[var(--k-green)]"
+              className="inline-flex items-center gap-1.5 text-[11px] uppercase font-[600] px-3 py-1.5 transition-colors group-hover:bg-[var(--k-green)] group-hover:text-[var(--bg)] group-hover:border-[var(--k-green)]"
               style={{
                 letterSpacing: '0.16em',
                 border: '1px solid var(--fg)',

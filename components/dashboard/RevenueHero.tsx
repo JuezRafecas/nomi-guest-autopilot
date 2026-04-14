@@ -64,7 +64,7 @@ export function RevenueHero({
 
       {revenueAtStake > 0 && (
         <div
-          className="mt-2 flex items-baseline gap-2 font-mono text-[10.5px] uppercase"
+          className="mt-2 flex items-baseline gap-2 font-mono text-[11px] uppercase"
           style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
         >
           <span>Money on the table · next 90d</span>

@@ -19,7 +19,7 @@ export function ActivityTicker({ items }: { items: string[] }) {
         {doubled.map((item, i) => (
           <span
             key={i}
-            className="inline-flex items-center gap-4 font-mono text-[10.5px] uppercase"
+            className="inline-flex items-center gap-4 font-mono text-[11px] uppercase"
             style={{
               letterSpacing: '0.18em',
               color: 'var(--fg)',

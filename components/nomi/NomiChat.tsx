@@ -361,7 +361,7 @@ function StatusPill({
       className="inline-flex items-center gap-1.5"
       style={{
         fontFamily: SANS_STACK,
-        fontSize: 10.5,
+        fontSize: 11,
         fontWeight: 600,
         letterSpacing: '0.14em',
         textTransform: 'uppercase',
@@ -453,7 +453,7 @@ function MessageRow({
             className="mb-1"
             style={{
               fontFamily: SANS_STACK,
-              fontSize: 9.5,
+              fontSize: 10,
               fontWeight: 700,
               letterSpacing: '0.16em',
               textTransform: 'uppercase',
@@ -485,7 +485,7 @@ function MessageRow({
         className="mb-2"
         style={{
           fontFamily: SANS_STACK,
-          fontSize: 9.5,
+          fontSize: 10,
           fontWeight: 700,
           letterSpacing: '0.16em',
           textTransform: 'uppercase',

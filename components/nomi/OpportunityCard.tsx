@@ -65,7 +65,7 @@ export function OpportunityCard({
           className="k-label"
           style={{
             color: segmentVar,
-            fontSize: 9.5,
+            fontSize: 10,
             letterSpacing: '0.18em',
           }}
         >

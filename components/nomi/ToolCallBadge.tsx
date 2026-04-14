@@ -174,7 +174,7 @@ function JsonBlock({ title, value }: { title: string; value: unknown }) {
       <pre
         className="k-mono overflow-x-auto whitespace-pre-wrap"
         style={{
-          fontSize: 10.5,
+          fontSize: 11,
           color: 'var(--fg-muted)',
           background: 'var(--bg-sunken)',
           padding: '8px 10px',

@@ -27,7 +27,7 @@ export function KPIGrid({ kpis }: { kpis: KPI[] }) {
             className="kpi-cell relative px-6 py-7 md:px-8 md:py-8"
           >
             <div
-              className="mb-3 text-[10.5px] uppercase font-[600]"
+              className="mb-3 text-[11px] uppercase font-[600]"
               style={{
                 letterSpacing: '0.18em',
                 color: isAnchor ? 'var(--accent-dim)' : 'var(--k-green, #0e5e48)',

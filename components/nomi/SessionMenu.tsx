@@ -100,7 +100,7 @@ export function SessionMenu({
           >
             <span
               className="k-label"
-              style={{ color: 'var(--k-green)', fontSize: 9.5 }}
+              style={{ color: 'var(--k-green)', fontSize: 10 }}
             >
               + New conversation
             </span>

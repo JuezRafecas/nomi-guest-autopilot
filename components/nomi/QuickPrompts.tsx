@@ -25,7 +25,7 @@ export function QuickPrompts({
           className="k-label"
           style={{
             color: 'var(--fg-subtle)',
-            fontSize: 9.5,
+            fontSize: 10,
             letterSpacing: '0.16em',
           }}
         >
@@ -69,7 +69,7 @@ export function QuickPrompts({
           type="button"
           onClick={() => onPick(p)}
           disabled={disabled}
-          className="k-mono text-[9.5px] uppercase px-2.5 py-1.5 transition-colors"
+          className="k-mono text-[10px] uppercase px-2.5 py-1.5 transition-colors"
           style={{
             letterSpacing: '0.12em',
             color: 'var(--fg-subtle)',

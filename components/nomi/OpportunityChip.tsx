@@ -134,7 +134,7 @@ export function OpportunityChip({
         <div
           className="k-mono text-right"
           style={{
-            fontSize: 9.5,
+            fontSize: 10,
             color: 'var(--fg-muted)',
           }}
         >

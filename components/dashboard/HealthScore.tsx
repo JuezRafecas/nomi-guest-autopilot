@@ -17,7 +17,7 @@ export function HealthScore({ score, activeCount, totalCount, diagnosis, series 
   return (
     <section className="flex flex-col">
       <div
-        className="mb-6 text-[10.5px] uppercase font-[600]"
+        className="mb-6 text-[11px] uppercase font-[600]"
         style={{
           letterSpacing: '0.18em',
           color: 'var(--k-green, #0e5e48)',

@@ -94,7 +94,7 @@ export function AudienceClient({
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-3">
           <Label>Featured guests</Label>
           <span
-            className="font-mono text-[10.5px] uppercase tabular-nums"
+            className="font-mono text-[11px] uppercase tabular-nums"
             style={{ letterSpacing: '0.14em', color: 'var(--fg-subtle)' }}
           >
             Showing <span style={{ color: 'var(--fg)' }}>{filtered.length}</span> / {guests.length}

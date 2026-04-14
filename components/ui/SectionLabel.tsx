@@ -23,7 +23,7 @@ export function SectionLabel({
         : 'var(--fg-subtle)';
   return (
     <Tag
-      className={cn('text-[10.5px] uppercase font-[600]', className)}
+      className={cn('text-[11px] uppercase font-[600]', className)}
       style={{
         letterSpacing: '0.18em',
         color,

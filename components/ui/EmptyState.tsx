@@ -48,7 +48,7 @@ export function EmptyState({ title, hint, cta, icon }: Props) {
       {cta && (
         <Link
           href={cta.href as '/dashboard'}
-          className="mt-6 inline-flex items-center gap-2 text-[10.5px] uppercase font-[600] px-4 py-2.5 transition-colors k-outline-cta"
+          className="mt-6 inline-flex items-center gap-2 text-[11px] uppercase font-[600] px-4 py-2.5 transition-colors k-outline-cta"
           style={{
             letterSpacing: '0.16em',
             border: '1px solid var(--fg)',
