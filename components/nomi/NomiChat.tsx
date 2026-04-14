@@ -412,7 +412,7 @@ function EmptyChat({
             letterSpacing: '-0.005em',
           }}
         >
-          Hi. I'm your CMO — while you run the floor, I watch every guest and
+          Hi, I'm your Guest Relationship Manager — while you run the floor, I watch every guest and
           know who's coming back, who's gone, and how much money is on the
           table.
         </p>
@@ -509,7 +509,7 @@ function MessageRow({
               part.state === 'output-available' ? part.output : undefined;
 
             if (
-              toolName === 'draftCampaign' &&
+              (toolName === 'designCampaign' || toolName === 'draftCampaign') &&
               part.state === 'output-available' &&
               output &&
               typeof output === 'object' &&
@@ -576,7 +576,7 @@ function summarizeToolResult(toolName: string, output: unknown): string | undefi
   if (toolName === 'getCampaignResults' && Array.isArray(o.campaigns)) {
     return `${o.campaigns.length} campaigns`;
   }
-  if (toolName === 'draftCampaign' && o.draft) {
+  if ((toolName === 'designCampaign' || toolName === 'draftCampaign') && o.draft) {
     return 'draft ready';
   }
   return undefined;

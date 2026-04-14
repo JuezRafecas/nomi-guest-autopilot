@@ -32,8 +32,9 @@ export interface Opportunity {
 }
 
 /**
- * Draft campaign as returned by the `draftCampaign` tool — same shape as a
- * persisted Campaign minus the DB-managed fields, plus the agent reasoning.
+ * Draft campaign as returned by the `designCampaign` tool — same shape as a
+ * persisted Campaign minus the DB-managed fields, plus agent-generated fields:
+ * reasoning, described audience, proposed KPIs, and an editorial goal line.
  */
 export type CampaignDraft = Omit<
   Campaign,
@@ -46,6 +47,10 @@ export type CampaignDraft = Omit<
   reasoning: string;
   described_audience: string;
   source: 'nomi';
+  /** Short editorial goal line shown under the name. */
+  goal?: string;
+  /** KPIs proposed by the agent for this specific campaign. */
+  kpi_labels?: Array<{ label: string; key: string }>;
 };
 
 export interface QueryCustomersResult {

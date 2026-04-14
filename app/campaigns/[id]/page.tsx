@@ -13,6 +13,24 @@ import { getMockCampaignById, MOCK_SAMPLE_MESSAGES } from '@/lib/mock';
 import { TEMPLATES } from '@/lib/templates';
 import { describeAudience } from '@/lib/audience';
 import { formatARS } from '@/lib/constants';
+import { getServiceClient } from '@/lib/supabase';
+import { campaignFromRow, type CampaignRow } from '@/lib/campaigns-db';
+import type { Campaign } from '@/lib/types';
+
+async function loadCampaign(id: string): Promise<Campaign | null> {
+  try {
+    const db = getServiceClient();
+    const { data } = await db
+      .from('campaigns')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (data) return campaignFromRow(data as CampaignRow);
+  } catch {
+    // Supabase not configured — fall back to mock
+  }
+  return getMockCampaignById(id) ?? null;
+}
 
 export default async function CampaignDetailPage({
   params,
@@ -20,7 +38,7 @@ export default async function CampaignDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const campaign = getMockCampaignById(id);
+  const campaign = await loadCampaign(id);
   if (!campaign) notFound();
   const tpl = campaign.template_key ? TEMPLATES[campaign.template_key] : null;
   const sampleMessage = tpl ? MOCK_SAMPLE_MESSAGES[tpl.accent] : '';

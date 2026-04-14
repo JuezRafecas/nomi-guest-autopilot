@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "generate-csv": "tsx scripts/generate-csv.ts",
     "seed": "tsx scripts/seed.ts",
+    "seed:voice-campaign": "tsx scripts/seed-voice-campaign.ts",
     "reset": "tsx scripts/reset.ts"
   },
   "dependencies": {

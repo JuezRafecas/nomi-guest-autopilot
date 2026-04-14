@@ -14,6 +14,7 @@ interface Body {
   action_type: ActionType;
   guest: Record<string, unknown>;
   fill_tables?: { day: string; shift: string };
+  content_brief?: string;
 }
 
 export async function POST(req: Request) {
@@ -55,6 +56,10 @@ export async function POST(req: Request) {
           { error: `unsupported action_type: ${body.action_type}` },
           { status: 400 }
         );
+    }
+
+    if (body.content_brief) {
+      userPrompt += `\n\nBriefing adicional del agente: ${body.content_brief}`;
     }
 
     const message = await generateMessage(systemPrompt, userPrompt);

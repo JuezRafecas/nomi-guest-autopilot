@@ -7,12 +7,13 @@ import type {
   CampaignTrigger,
   GuestProfile,
   Segment,
-  TemplateKey,
+  WorkflowStep,
 } from '../types';
 import { filterProfiles, describeAudience, SEGMENT_LABEL } from '../audience';
-import { campaignFromTemplate, computeRates } from '../campaigns';
-import { TEMPLATES, TEMPLATE_ORDER, getTemplate } from '../templates';
+import { deriveChannels, computeRates, emptyMetrics } from '../campaigns';
+import { TEMPLATES, TEMPLATE_ORDER } from '../templates';
 import { detectOpportunities } from './opportunities';
+import { validateWorkflow } from './workflow-validation';
 import type {
   CampaignDraft,
   CampaignResultsSummary,
@@ -29,12 +30,24 @@ export interface NomiToolDeps {
 
 const SEGMENT_VALUES = ['lead', 'new', 'active', 'at_risk', 'dormant', 'vip'] as const;
 const TIER_VALUES = ['vip', 'frequent', 'occasional'] as const;
-const TEMPLATE_VALUES = [
-  'post_visit_smart',
-  'first_to_second_visit',
-  'reactivate_inactive',
-  'promote_event',
-  'fill_empty_tables',
+const CHANNEL_VALUES = ['whatsapp', 'email', 'whatsapp_then_email', 'call'] as const;
+const PROMPT_KEY_VALUES = [
+  'reactivation',
+  'second_visit',
+  'post_visit',
+  'fill_tables',
+] as const;
+const EVENT_VALUES = [
+  'visit_completed',
+  'visit_detected',
+  'no_visit_threshold_reached',
+  'low_occupancy_detected',
+  'manual_enrollment',
+] as const;
+const BRANCH_CONDITION_VALUES = [
+  'message_response',
+  'visit_since_step',
+  'custom',
 ] as const;
 
 async function loadProfiles(
@@ -66,11 +79,97 @@ function revenueAtStakeFor(
   return 0;
 }
 
+// ---------- Workflow step schemas (zod) ------------------------------------
+
+const sendStepSchema = z.object({
+  id: z.string().min(1),
+  kind: z.literal('send_message'),
+  channel: z.enum(CHANNEL_VALUES),
+  prompt_key: z.enum(PROMPT_KEY_VALUES).describe(
+    'Which copy system-prompt to use. Pick the closest intent: reactivation for dormant/at_risk, second_visit for new guests, post_visit for feedback/review, fill_tables for low-occupancy invites.'
+  ),
+  content_brief: z
+    .string()
+    .min(5)
+    .max(280)
+    .describe(
+      'One-line creative brief for this specific message (tone, hook, angle). Will be appended to the copy prompt at send time.'
+    )
+    .optional(),
+  title: z
+    .string()
+    .min(3)
+    .max(60)
+    .describe('Short editorial title for this step (3–5 words).')
+    .optional(),
+  next: z.string().optional(),
+});
+
+const waitStepSchema = z.object({
+  id: z.string().min(1),
+  kind: z.literal('wait'),
+  hours: z.number().int().positive().max(24 * 30),
+  next: z.string().optional(),
+});
+
+const branchStepSchema = z.object({
+  id: z.string().min(1),
+  kind: z.literal('branch'),
+  condition: z.enum(BRANCH_CONDITION_VALUES),
+  branches: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        matches: z.string().min(1),
+        next: z.string().min(1),
+      })
+    )
+    .min(2),
+});
+
+const endStepSchema = z.object({
+  id: z.string().min(1),
+  kind: z.literal('end'),
+  outcome: z.enum(['completed', 'escalated']),
+});
+
+const workflowStepSchema = z.discriminatedUnion('kind', [
+  sendStepSchema,
+  waitStepSchema,
+  branchStepSchema,
+  endStepSchema,
+]);
+
+const audienceSchema = z.object({
+  segments: z.array(z.enum(SEGMENT_VALUES)).optional(),
+  tiers: z.array(z.enum(TIER_VALUES)).optional(),
+  min_total_visits: z.number().int().nonnegative().optional(),
+  max_total_visits: z.number().int().nonnegative().optional(),
+  visited_in_last_days: z.number().int().positive().optional(),
+  not_visited_in_last_days: z.number().int().positive().optional(),
+  preferred_day_of_week: z.string().optional(),
+  preferred_shift: z.string().optional(),
+  requires_opt_in: z.enum(CHANNEL_VALUES).optional(),
+});
+
+const triggerSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('event'),
+    event: z.enum(EVENT_VALUES),
+    delay_hours: z.number().int().nonnegative().optional(),
+  }),
+  z.object({
+    type: z.literal('schedule'),
+    at: z.string().describe('ISO 8601 timestamp or cron expression.'),
+  }),
+  z.object({ type: z.literal('manual') }),
+]);
+
 export function buildNomiTools({ restaurantId, avgTicket, supabase }: NomiToolDeps) {
   return {
     queryCustomers: tool({
       description:
-        'Contar y samplear clientes de la CDP según un filtro (segmento, tier, visitas mínimas, recencia). Devuelve count + sample + promedios. Usalo para verificar tamaño de audiencia antes de proponer una campaña.',
+        'Count and sample guests from the CDP by filter (segment, tier, min visits, recency). Returns count + sample + averages. Use to verify audience size before designing a campaign.',
       inputSchema: z.object({
         segment: z.enum(SEGMENT_VALUES).optional(),
         tier: z.enum(TIER_VALUES).optional(),
@@ -107,7 +206,7 @@ export function buildNomiTools({ restaurantId, avgTicket, supabase }: NomiToolDe
 
     getSegmentMetrics: tool({
       description:
-        'Devuelve la distribución de clientes por segmento (lead/new/active/at_risk/dormant/vip) con conteo, porcentaje y revenue at stake estimado. Útil para diagnósticos y priorización.',
+        'Returns the distribution of guests by segment (lead/new/active/at_risk/dormant/vip) with count, percentage and estimated revenue at stake. Use for diagnostics and prioritization before designing a workflow.',
       inputSchema: z.object({
         segment: z.enum(SEGMENT_VALUES).optional(),
       }),
@@ -132,13 +231,11 @@ export function buildNomiTools({ restaurantId, avgTicket, supabase }: NomiToolDe
 
     getCampaignResults: tool({
       description:
-        'Devuelve los KPIs de una campaña específica (por id) o el resumen agregado de todas las campañas activas. Usalo para responder "¿cómo va mi campaña de X?".',
+        'Returns KPIs for a specific campaign (by id) or the aggregated summary of all active campaigns. Use to answer "how is my X campaign doing?".',
       inputSchema: z.object({
         campaign_id: z.string().optional(),
       }),
-      execute: async (
-        args
-      ): Promise<{ campaigns: CampaignResultsSummary[] }> => {
+      execute: async (args): Promise<{ campaigns: CampaignResultsSummary[] }> => {
         let query = supabase
           .from('campaigns')
           .select('*')
@@ -148,19 +245,7 @@ export function buildNomiTools({ restaurantId, avgTicket, supabase }: NomiToolDe
         const { data, error } = await query;
         if (error) throw error;
         const campaigns = (data ?? []).map((c: Record<string, unknown>) => {
-          const rawMetrics = (c.metrics as CampaignMetrics | null) ?? {
-            sent: 0,
-            delivered: 0,
-            read: 0,
-            responded: 0,
-            converted: 0,
-            failed: 0,
-            revenue_attributed: 0,
-            delivery_rate: 0,
-            read_rate: 0,
-            response_rate: 0,
-            conversion_rate: 0,
-          };
+          const rawMetrics = (c.metrics as CampaignMetrics | null) ?? emptyMetrics();
           const metrics = computeRates(rawMetrics);
           return {
             id: String(c.id),
@@ -182,7 +267,7 @@ export function buildNomiTools({ restaurantId, avgTicket, supabase }: NomiToolDe
 
     listTemplates: tool({
       description:
-        'Lista los 5 templates canónicos de campaña con su nombre, descripción, audiencia default, trigger default y KPIs. Usalo antes de draftCampaign cuando no estés segura de qué template usar.',
+        'List the 5 canonical campaign templates with their defaults. These are REFERENCE/INSPIRATION only — you are NOT required to pick one. Prefer designing a tailored workflow via designCampaign.',
       inputSchema: z.object({}),
       execute: async () => {
         return {
@@ -196,6 +281,7 @@ export function buildNomiTools({ restaurantId, avgTicket, supabase }: NomiToolDe
               default_audience: describeAudience(t.default_audience),
               trigger_kind: t.default_trigger.type,
               kpi_labels: t.kpi_labels.map((k) => k.label),
+              workflow_step_count: t.workflow.length,
             };
           }),
         };
@@ -204,7 +290,7 @@ export function buildNomiTools({ restaurantId, avgTicket, supabase }: NomiToolDe
 
     detectOpportunities: tool({
       description:
-        'Corre el detector de oportunidades sobre la CDP actual. Devuelve las top oportunidades ordenadas por revenue potencial con reasoning, audiencia sugerida y template sugerido.',
+        'Run the opportunity detector over the current CDP. Returns top opportunities ranked by revenue potential, each with reasoning, target segment and recommended template key (as hint, not obligation).',
       inputSchema: z.object({}),
       execute: async (): Promise<{ opportunities: Opportunity[] }> => {
         const profiles = await loadProfiles(supabase, restaurantId);
@@ -214,7 +300,7 @@ export function buildNomiTools({ restaurantId, avgTicket, supabase }: NomiToolDe
 
     estimateAudienceSize: tool({
       description:
-        'Estima cuántos clientes matchean un filtro de audiencia específico. Útil para confirmar tamaño antes de draftear una campaña.',
+        'Estimate how many guests match a specific audience filter. Use to confirm size before drafting a campaign.',
       inputSchema: z.object({
         segments: z.array(z.enum(SEGMENT_VALUES)).optional(),
         tiers: z.array(z.enum(TIER_VALUES)).optional(),
@@ -233,71 +319,107 @@ export function buildNomiTools({ restaurantId, avgTicket, supabase }: NomiToolDe
       },
     }),
 
-    draftCampaign: tool({
-      description:
-        'Genera un borrador COMPLETO de campaña (audience + trigger + workflow + metrics) basado en un template canónico. NO persiste nada — devuelve el plan para que el operador apruebe en un click. SIEMPRE llamá a esta tool cuando el usuario quiera "crear", "activar", "lanzar" o "armar" una campaña.',
+    designCampaign: tool({
+      description: `Design a complete, BESPOKE campaign for the guest segment at hand — name, editorial goal line, audience filter, trigger, full workflow (send_message / wait / branch / end steps), proposed KPIs, reasoning, and revenue estimate. This is the primary creative tool.
+
+CRITICAL RULES:
+- Before calling this, you MUST have called queryCustomers or getSegmentMetrics for the target segment so the design is grounded in real numbers.
+- DO NOT copy the 5 canonical templates. They are reference only. Design workflows that are LONGER and more specific when the situation warrants — feel free to use 5–10+ steps with multiple waits and branches.
+- Each send_message step SHOULD include a content_brief: a one-line creative hook for that specific message (e.g. "warm opener mentioning their preferred Thursday dinners, no discount").
+- Workflows must be well-formed: every "next" references a real step id, every branch has ≥2 targets, at least one end step, every path eventually reaches an end. Reuse step ids only when you deliberately want a loop back (don't).
+- Channels: whatsapp is default. Use whatsapp_then_email when WhatsApp may fail (cold dormant guests). Use email alone for final gentle attempts.
+- Waits: first contact usually 0h or single-digit hours from trigger. Between a send and the next branch, wait 48–120h so guests can reply. Final reactivation attempts can wait 5–7 days.
+- Branches on message_response usually have 3 arms: positive / negative / no_response.
+- propose KPIs that match the campaign intent (reactivation_rate, second_visit_rate, feedback_nps, etc.) — not generic ones.
+
+Return a plan the operator can approve with one click. NEVER persist anything.`,
       inputSchema: z.object({
-        template_key: z.enum(TEMPLATE_VALUES),
-        name_override: z.string().optional().describe('Nombre editorial corto para la campaña.'),
+        name: z
+          .string()
+          .min(3)
+          .max(60)
+          .describe('Short editorial campaign name (not a template key).'),
+        goal: z
+          .string()
+          .min(8)
+          .max(140)
+          .describe('One-line goal: what success looks like for this campaign.'),
         reasoning: z
           .string()
-          .describe('Por qué esta campaña es la correcta en una frase.'),
-        audience: z
-          .object({
-            segments: z.array(z.enum(SEGMENT_VALUES)).optional(),
-            tiers: z.array(z.enum(TIER_VALUES)).optional(),
-            not_visited_in_last_days: z.number().int().positive().optional(),
-            visited_in_last_days: z.number().int().positive().optional(),
-            min_total_visits: z.number().int().nonnegative().optional(),
-          })
-          .optional()
-          .describe('Ajustes sobre la audiencia default del template.'),
+          .min(12)
+          .max(500)
+          .describe(
+            'Why this design is right for THIS audience right now. Cite numbers from the tools you called.'
+          ),
+        audience: audienceSchema.describe('The exact audience filter to use at runtime.'),
+        trigger: triggerSchema.describe(
+          'How the campaign starts. Use event for automation, schedule for one-shot, manual if the operator triggers it.'
+        ),
+        workflow: z
+          .array(workflowStepSchema)
+          .min(3)
+          .max(16)
+          .describe(
+            'Ordered list of steps. First step is the entry point. Must be well-formed: all next/branch ids resolve, at least one end, every path reaches an end.'
+          ),
+        kpi_labels: z
+          .array(
+            z.object({
+              label: z.string().min(2).max(40),
+              key: z.string().min(2).max(40),
+            })
+          )
+          .min(2)
+          .max(5)
+          .describe('2–5 KPIs that measure success for this specific campaign.'),
+        estimated_revenue: z
+          .number()
+          .int()
+          .nonnegative()
+          .describe(
+            'Conservative revenue estimate in the restaurant currency (integer, no decimals). Base it on audience size × avg ticket × realistic conversion rate.'
+          ),
       }),
       execute: async (args): Promise<{ draft: CampaignDraft }> => {
-        const templateKey = args.template_key as TemplateKey;
-        const template = getTemplate(templateKey);
-        const mergedAudience: AudienceFilter = {
-          ...template.default_audience,
-          ...(args.audience ?? {}),
-        };
-        const base = campaignFromTemplate(templateKey, restaurantId, {
-          name: args.name_override ?? template.name,
-          audience_filter: mergedAudience,
-        });
+        const workflow = args.workflow as unknown as WorkflowStep[];
+        const validation = validateWorkflow(workflow);
+        if (!validation.ok) {
+          throw new Error(
+            `Invalid workflow: ${validation.errors.join('; ')}. Fix the graph and call designCampaign again.`
+          );
+        }
+
+        const audience: AudienceFilter = { ...args.audience };
         const profiles = await loadProfiles(supabase, restaurantId);
-        const matched = filterProfiles(profiles, mergedAudience);
-        const estimatedRevenue = estimateRevenueForTemplate(
-          templateKey,
-          matched.length,
-          avgTicket
-        );
+        const matched = filterProfiles(profiles, audience);
+
+        const type = args.trigger.type === 'schedule' ? 'one_shot' : 'automation';
+
         const draft: CampaignDraft = {
-          ...base,
-          estimated_revenue: estimatedRevenue,
-          trigger: base.trigger as CampaignTrigger,
+          restaurant_id: restaurantId,
+          template_key: null,
+          type,
+          name: args.name,
+          description: args.goal,
+          status: 'draft',
+          audience_filter: audience,
+          trigger: args.trigger as CampaignTrigger,
+          workflow,
+          channels: deriveChannels(workflow),
+          estimated_revenue: args.estimated_revenue,
+          started_at: null,
+          completed_at: null,
           reasoning: args.reasoning,
-          described_audience: describeAudience(mergedAudience),
+          described_audience:
+            describeAudience(audience) || `${matched.length} guests`,
           source: 'nomi',
+          goal: args.goal,
+          kpi_labels: args.kpi_labels,
         };
         return { draft };
       },
     }),
   } as const;
-}
-
-function estimateRevenueForTemplate(
-  key: TemplateKey,
-  audienceSize: number,
-  avgTicket: number
-): number {
-  const rates: Record<TemplateKey, number> = {
-    reactivate_inactive: 0.08,
-    first_to_second_visit: 0.15,
-    post_visit_smart: 0.04,
-    fill_empty_tables: 0.1,
-    promote_event: 0.2,
-  };
-  return Math.round(audienceSize * avgTicket * rates[key]);
 }
 
 export function formatSegmentsList(segs: Segment[]): string {

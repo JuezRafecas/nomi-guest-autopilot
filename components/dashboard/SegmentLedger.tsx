@@ -1,8 +1,16 @@
-import { SegmentRow } from './SegmentRow';
+import { SegmentRow, type SegmentRowActionMode } from './SegmentRow';
 import type { SegmentSummary } from '@/lib/types';
 import { SEGMENT_ORDER } from '@/lib/constants';
 
-export function SegmentLedger({ summaries }: { summaries: SegmentSummary[] }) {
+export function SegmentLedger({
+  summaries,
+  interactive = true,
+  actionMode = 'cta',
+}: {
+  summaries: SegmentSummary[];
+  interactive?: boolean;
+  actionMode?: SegmentRowActionMode;
+}) {
   const ordered = SEGMENT_ORDER
     .map((seg) => summaries.find((s) => s.segment === seg))
     .filter((s): s is SegmentSummary => Boolean(s));
@@ -17,11 +25,19 @@ export function SegmentLedger({ summaries }: { summaries: SegmentSummary[] }) {
         <LedgerLabel align="right">Volume</LedgerLabel>
         <LedgerLabel align="right">Trend</LedgerLabel>
         <LedgerLabel align="right">Opportunity</LedgerLabel>
-        <LedgerLabel align="right">Action</LedgerLabel>
+        <LedgerLabel align="right">
+          {actionMode === 'coming-soon' ? 'Coming soon' : 'Action'}
+        </LedgerLabel>
       </header>
       <div>
         {ordered.map((summary, i) => (
-          <SegmentRow key={summary.segment} summary={summary} index={i} />
+          <SegmentRow
+            key={summary.segment}
+            summary={summary}
+            index={i}
+            interactive={interactive}
+            actionMode={actionMode}
+          />
         ))}
       </div>
     </section>

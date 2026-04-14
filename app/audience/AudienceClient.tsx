@@ -140,7 +140,7 @@ export function AudienceClient({
       </section>
 
       <section className="editorial-container pb-16">
-        <SegmentLedger summaries={summaries} />
+        <SegmentLedger summaries={summaries} interactive={false} actionMode="coming-soon" />
       </section>
 
       <section className="editorial-container pb-4">

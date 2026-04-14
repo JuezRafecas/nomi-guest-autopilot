@@ -185,6 +185,17 @@ export interface SendMessageStep {
   channel: Channel;
   template_id: string;
   prompt_key: string;
+  /**
+   * Free-form briefing from the agent for this specific step. When present
+   * it is appended to the user prompt at generation time so the copy reflects
+   * the step's intent (e.g. "softer follow-up, no pressure").
+   */
+  content_brief?: string;
+  /**
+   * Optional editorial title for this step shown in the chat summary.
+   * When absent we fall back to a derived label.
+   */
+  title?: string;
   fallback?: {
     retry_after_hours: number;
     retry_channel?: Channel;

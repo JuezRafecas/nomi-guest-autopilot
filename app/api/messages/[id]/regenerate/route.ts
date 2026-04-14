@@ -155,12 +155,14 @@ export async function POST(
       return NextResponse.json({ error: 'restaurant not found' }, { status: 500 });
     }
 
+    const stepBrief = step.content_brief;
+    const combinedHint = [stepBrief, hint].filter(Boolean).join(' · ');
     const prompt = buildPrompt(
       step.prompt_key,
       guest,
       profile as GuestProfile,
       restaurant.name,
-      hint,
+      combinedHint || undefined,
     );
     if (!prompt) {
       return NextResponse.json(

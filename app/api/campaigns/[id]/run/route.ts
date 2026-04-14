@@ -35,73 +35,97 @@ function buildPromptForStep(
   guest: Guest,
   profile: GuestProfile,
   restaurantName: string,
+  contentBrief?: string,
 ): { system: string; user: string } | null {
   if (promptKey === 'reactivation') {
-    return {
-      system: SYSTEM_PROMPTS.reactivation,
-      user: buildReactivationPrompt(
-        {
-          name: guest.name,
-          total_visits: profile.total_visits,
-          days_since_last: profile.days_since_last ?? 0,
-          preferred_day_of_week: profile.preferred_day_of_week,
-          preferred_shift: profile.preferred_shift,
-          preferred_sector: profile.preferred_sector,
-          avg_party_size: profile.avg_party_size,
-          avg_score: profile.avg_score,
-        },
-        restaurantName,
-      ),
-    };
+    return appendBrief(
+      {
+        system: SYSTEM_PROMPTS.reactivation,
+        user: buildReactivationPrompt(
+          {
+            name: guest.name,
+            total_visits: profile.total_visits,
+            days_since_last: profile.days_since_last ?? 0,
+            preferred_day_of_week: profile.preferred_day_of_week,
+            preferred_shift: profile.preferred_shift,
+            preferred_sector: profile.preferred_sector,
+            avg_party_size: profile.avg_party_size,
+            avg_score: profile.avg_score,
+          },
+          restaurantName,
+        ),
+      },
+      contentBrief,
+    );
   }
   if (promptKey === 'second_visit') {
-    return {
-      system: SYSTEM_PROMPTS.second_visit,
-      user: buildSecondVisitPrompt(
-        {
-          name: guest.name,
-          first_visit_at: profile.first_visit_at ?? new Date().toISOString(),
-          preferred_shift: profile.preferred_shift,
-          preferred_sector: profile.preferred_sector,
-          party_size: profile.avg_party_size,
-          score: profile.avg_score,
-        },
-        restaurantName,
-      ),
-    };
+    return appendBrief(
+      {
+        system: SYSTEM_PROMPTS.second_visit,
+        user: buildSecondVisitPrompt(
+          {
+            name: guest.name,
+            first_visit_at: profile.first_visit_at ?? new Date().toISOString(),
+            preferred_shift: profile.preferred_shift,
+            preferred_sector: profile.preferred_sector,
+            party_size: profile.avg_party_size,
+            score: profile.avg_score,
+          },
+          restaurantName,
+        ),
+      },
+      contentBrief,
+    );
   }
   if (promptKey === 'post_visit') {
-    return {
-      system: SYSTEM_PROMPTS.post_visit,
-      user: buildPostVisitPrompt(
-        {
-          name: guest.name,
-          total_visits: profile.total_visits,
-          party_size: profile.avg_party_size,
-          sector: profile.preferred_sector,
-          score: profile.avg_score,
-        },
-        restaurantName,
-      ),
-    };
+    return appendBrief(
+      {
+        system: SYSTEM_PROMPTS.post_visit,
+        user: buildPostVisitPrompt(
+          {
+            name: guest.name,
+            total_visits: profile.total_visits,
+            party_size: profile.avg_party_size,
+            sector: profile.preferred_sector,
+            score: profile.avg_score,
+          },
+          restaurantName,
+        ),
+      },
+      contentBrief,
+    );
   }
   if (promptKey === 'fill_tables') {
-    return {
-      system: SYSTEM_PROMPTS.fill_tables,
-      user: buildFillTablesPrompt(
-        {
-          name: guest.name,
-          total_visits: profile.total_visits,
-          preferred_day_of_week: profile.preferred_day_of_week,
-          preferred_shift: profile.preferred_shift,
-        },
-        restaurantName,
-        profile.preferred_day_of_week ?? 'viernes',
-        profile.preferred_shift ?? 'cena',
-      ),
-    };
+    return appendBrief(
+      {
+        system: SYSTEM_PROMPTS.fill_tables,
+        user: buildFillTablesPrompt(
+          {
+            name: guest.name,
+            total_visits: profile.total_visits,
+            preferred_day_of_week: profile.preferred_day_of_week,
+            preferred_shift: profile.preferred_shift,
+          },
+          restaurantName,
+          profile.preferred_day_of_week ?? 'viernes',
+          profile.preferred_shift ?? 'cena',
+        ),
+      },
+      contentBrief,
+    );
   }
   return null;
+}
+
+function appendBrief(
+  prompt: { system: string; user: string },
+  brief?: string,
+): { system: string; user: string } {
+  if (!brief) return prompt;
+  return {
+    system: prompt.system,
+    user: `${prompt.user}\n\nBriefing adicional del agente: ${brief}`,
+  };
 }
 
 async function runVoiceCampaign(
@@ -281,7 +305,13 @@ export async function POST(
     for (const profile of toGenerate) {
       const guest = profile.guest;
       if (!guest) continue;
-      const prompt = buildPromptForStep(step.prompt_key, guest, profile, restaurant.name);
+      const prompt = buildPromptForStep(
+        step.prompt_key,
+        guest,
+        profile,
+        restaurant.name,
+        step.content_brief,
+      );
       if (!prompt) continue;
       let content = '';
       try {
