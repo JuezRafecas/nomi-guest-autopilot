@@ -106,7 +106,7 @@ export function IntegrationsClient() {
   const handleToggle = (id: string, name: string) => {
     const next = !state[id];
     setState((s) => ({ ...s, [id]: next }));
-    setToast(next ? `${name} conectada` : `${name} desconectada`);
+    setToast(next ? `${name} connected` : `${name} disconnected`);
     setTimeout(() => setToast(null), 2200);
   };
 

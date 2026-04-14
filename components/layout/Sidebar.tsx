@@ -7,17 +7,24 @@ import { Logo } from './Logo';
 import { cn } from '@/lib/cn';
 import { MOCK_RESTAURANT } from '@/lib/mock';
 
-const NAV = [
+type NavItem = {
+  href: string;
+  label: string;
+  live?: boolean;
+  soon?: boolean;
+  badgeKey?: 'pending';
+};
+
+const NAV: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/hub', label: 'Nomi · Hub', live: true },
   { href: '/campaigns', label: 'Campaigns' },
-  { href: '/templates', label: 'Templates' },
+  { href: '/templates', label: 'Templates', soon: true },
   { href: '/audience', label: 'Audience' },
-  { href: '/messages', label: 'Messages', badgeKey: 'pending' as const },
   { href: '/revenue', label: 'Revenue' },
   { href: '/integrations', label: 'Integrations' },
   { href: '/settings', label: 'Settings' },
-  { href: '/upload', label: 'Upload Data' },
+  { href: '/upload', label: 'Upload data' },
 ];
 
 interface SidebarProps {
@@ -57,7 +64,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose, pendingCount = 0 }:
         <ul className="space-y-0.5">
           {NAV.map((item) => {
             const active = pathname === item.href || pathname?.startsWith(item.href + '/');
-            const showBadge = item.badgeKey === 'pending' && pendingCount > 0;
+            const showPendingBadge = item.badgeKey === 'pending' && pendingCount > 0;
             return (
               <li key={item.href}>
                 <Link
@@ -85,10 +92,22 @@ export function Sidebar({ mobileOpen = false, onMobileClose, pendingCount = 0 }:
                       borderRadius: 0,
                     }}
                   />
-                  {item.label}
-                  {showBadge && (
+                  <span className="flex-1">{item.label}</span>
+                  {item.soon && (
                     <span
-                      className="ml-auto inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[9px] font-mono font-bold leading-none"
+                      className="font-mono text-[8.5px] px-1.5 py-0.5"
+                      style={{
+                        letterSpacing: '0.12em',
+                        color: 'var(--fg-subtle)',
+                        border: '1px solid var(--hairline-strong)',
+                      }}
+                    >
+                      SOON
+                    </span>
+                  )}
+                  {showPendingBadge && (
+                    <span
+                      className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[9px] font-mono font-bold leading-none"
                       style={{
                         backgroundColor: 'var(--accent)',
                         color: 'var(--bg)',
@@ -165,7 +184,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose, pendingCount = 0 }:
             <div className="flex items-center justify-end px-4 pt-4">
               <button
                 onClick={onMobileClose}
-                aria-label="Cerrar menú"
+                aria-label="Close menu"
                 className="p-2 text-fg-subtle hover:text-fg transition-colors"
               >
                 <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden>

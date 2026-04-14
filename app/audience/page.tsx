@@ -4,7 +4,7 @@ import { getGuests, getKpis, getMessages, getSegments } from '@/lib/api';
 export default async function AudiencePage() {
   const [summaries, guests, kpis, messages] = await Promise.all([
     getSegments(),
-    getGuests(),
+    getGuests({ sort: 'visits', limit: 200 }),
     getKpis(),
     getMessages(),
   ]);

@@ -98,8 +98,26 @@ function normalizeGuest(g: unknown): GuestRow {
   };
 }
 
-export async function getGuests(segment?: Segment): Promise<GuestRow[]> {
-  const data = await apiGet<{ guests: unknown[] }>('/api/audience/guests', { segment });
+export interface GuestQuery {
+  segment?: Segment;
+  sort?: 'visits' | 'spent' | 'recent' | 'inactive';
+  min_visits?: number;
+  max_days_since_last?: number;
+  limit?: number;
+  q?: string;
+}
+
+export async function getGuests(query: Segment | GuestQuery = {}): Promise<GuestRow[]> {
+  const params: GuestQuery =
+    typeof query === 'string' ? { segment: query } : query;
+  const data = await apiGet<{ guests: unknown[] }>('/api/audience/guests', {
+    segment: params.segment,
+    sort: params.sort ?? 'visits',
+    min_visits: params.min_visits,
+    max_days_since_last: params.max_days_since_last,
+    limit: params.limit ?? 200,
+    q: params.q,
+  });
   return data.guests.map(normalizeGuest);
 }
 
