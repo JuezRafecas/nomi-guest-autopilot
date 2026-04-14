@@ -133,6 +133,174 @@
     text-transform: uppercase;
     color: var(--fg-subtle);
   }
+
+  /* ─────────────────────────────────────────────────────────────
+     KASZEK × ANTHROPIC PUSH TO PROD HACKATHON — landing-only scope
+     ───────────────────────────────────────────────────────────── */
+
+  [data-theme='kaszek'] {
+    --k-cream: #faf8f4;
+    --k-cream-soft: #f1ede3;
+    --k-cream-deep: #ebe5d6;
+    --k-ink: #151411;
+    --k-ink-muted: #605e5a;
+    --k-ink-subtle: #8a8782;
+    --k-hairline: #e4dfd2;
+    --k-hairline-strong: #d6cfbc;
+    --k-terracotta: #e6784c;
+    --k-terracotta-deep: #c25a2e;
+    --k-green: #0e5e48;
+    --k-mint: #a8d8c4;
+    --k-royal: #5b8def;
+    --k-sun: #f0a04b;
+
+    background: var(--k-cream);
+    color: var(--k-ink);
+    font-family: var(--font-kaszek-sans), Inter, system-ui, sans-serif;
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+  }
+
+  [data-theme='kaszek'] ::selection {
+    background: var(--k-terracotta);
+    color: var(--k-cream);
+  }
+
+  [data-theme='kaszek'] h1,
+  [data-theme='kaszek'] h2,
+  [data-theme='kaszek'] h3,
+  [data-theme='kaszek'] .k-display {
+    font-family: var(--font-kaszek-display), 'Archivo Black', system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    color: var(--k-ink);
+    font-feature-settings: 'ss02';
+  }
+
+  .k-display-xl {
+    font-family: var(--font-kaszek-display), 'Archivo Black', system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.75rem, 5.4vw, 5.5rem);
+    line-height: 0.88;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+    overflow-wrap: break-word;
+    hyphens: none;
+  }
+
+  .k-label {
+    font-family: var(--font-kaszek-sans), Inter, system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--k-green);
+  }
+
+  .k-body {
+    font-family: var(--font-kaszek-sans), Inter, system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--k-ink-muted);
+    font-weight: 400;
+  }
+
+  .k-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum', 'zero';
+    letter-spacing: 0.04em;
+  }
+
+  /* Warm paper grain — subtle fractal noise, multiply blend for cream tones */
+  .k-grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.32 0 0 0 0 0.25 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Suppress the default dark body grain when the landing scope is mounted */
+  body:has([data-theme='kaszek'])::before {
+    display: none;
+  }
+
+  body:has([data-theme='kaszek']) {
+    background: var(--k-cream, #faf8f4);
+  }
+
+  .k-hairline {
+    border-color: var(--k-hairline);
+  }
+
+  /* Editorial grid lines over cream — barely-there warm columns */
+  .k-ledger {
+    background-image:
+      linear-gradient(to right, rgba(21, 20, 17, 0.055) 1px, transparent 1px);
+    background-size: calc(100% / 12) 100%;
+    background-position: 0 0;
+  }
+
+  /* Staggered reveal — used on hero elements */
+  .k-reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: k-reveal 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  }
+  .k-reveal-1 { animation-delay: 80ms; }
+  .k-reveal-2 { animation-delay: 180ms; }
+  .k-reveal-3 { animation-delay: 280ms; }
+  .k-reveal-4 { animation-delay: 380ms; }
+  .k-reveal-5 { animation-delay: 480ms; }
+  .k-reveal-6 { animation-delay: 580ms; }
+
+  @keyframes k-reveal {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Marquee — slow event info ticker */
+  @keyframes k-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .k-marquee {
+    animation: k-marquee 42s linear infinite;
+  }
+
+  /* Brutalist button — hard shadow that collapses on press */
+  .k-btn {
+    position: relative;
+    transition:
+      transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 180ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      background-color 180ms ease,
+      color 180ms ease;
+    cursor: pointer;
+  }
+  .k-btn--primary {
+    box-shadow: 5px 5px 0 0 #151411;
+  }
+  .k-btn--primary:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 3px 3px 0 0 #151411;
+    background: #d96b3e;
+  }
+  .k-btn--primary:active {
+    transform: translate(5px, 5px);
+    box-shadow: 0 0 0 0 #151411;
+  }
+  .k-btn--ghost:hover {
+    background: #0e5e48;
+    color: #faf8f4;
+  }
+  .k-btn:focus-visible {
+    outline: 3px solid #5b8def;
+    outline-offset: 3px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

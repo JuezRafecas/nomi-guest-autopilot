@@ -19,6 +19,7 @@ Excepción acotada: cambios puramente visuales (Tailwind, copy, spacing) se veri
 - **`superpowers:test-driven-development`** — obligatoria antes de implementar cualquier feature o bugfix en `lib/`, `app/api/`, o cualquier lógica.
 - **`superpowers:brainstorming`** — antes de trabajo creativo (nueva feature, nuevo componente, cambio de comportamiento).
 - **`superpowers:verification-before-completion`** — antes de declarar una tarea terminada.
+- **`agent-browser`** — **uso obligatorio para cualquier tarea de web/browser** (abrir sitios, llenar forms, scrape, dogfood, screenshots, testear UI en el dev server). No usar `WebFetch` ni herramientas genéricas de Chrome DevTools cuando la intención es "interactuar con una web" — arrancar siempre con `agent-browser`.
 - **`Explore` subagent** — para búsquedas que necesitan más de 3 queries sobre el codebase.
 
 ## Archivos donde el hackathon mete mano

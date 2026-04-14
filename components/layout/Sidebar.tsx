@@ -8,9 +8,12 @@ import { MOCK_RESTAURANT } from '@/lib/mock';
 
 const NAV = [
   { href: '/dashboard', label: 'Diagnóstico' },
-  { href: '/actions', label: 'Acciones' },
+  { href: '/campaigns', label: 'Campañas' },
+  { href: '/templates', label: 'Plantillas' },
+  { href: '/audience', label: 'Audiencia' },
+  { href: '/messages', label: 'Mensajes' },
   { href: '/revenue', label: 'Revenue' },
-  { href: '/upload', label: 'Subir datos' },
+  { href: '/upload', label: 'Datos' },
 ];
 
 export function Sidebar() {

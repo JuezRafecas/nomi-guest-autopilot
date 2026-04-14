@@ -116,6 +116,8 @@ Cambios puramente visuales (Tailwind classes, copy, spacing, color) que no se pu
 
 **Design system.** Editorial Dark — warm near-black, Fraunces display, Instrument Sans body, JetBrains Mono tabular numerals, hairlines no borders, un solo accent (oxidized copper) para los segmentos que sangran plata. **Prohibido**: glassmorphism, gradientes violetas, aesthetic genérico de SaaS.
 
+**Automatización de browser / web.** Para cualquier tarea que involucre interactuar con una web (abrir sitios, llenar forms, click, scrape, screenshots, testear el dev server, dogfood, QA visual), la herramienta por defecto es **`agent-browser`**. No arrancar con `WebFetch`, `curl`, ni tools genéricas de Chrome DevTools salvo que `agent-browser` no pueda hacerlo. Triggers típicos: "abrir la landing", "testear el upload flow", "sacar screenshot de X", "ver cómo se ve en mobile", "verificar el golden path en el browser".
+
 ---
 
 ## 4. Verificación antes de cerrar una tarea

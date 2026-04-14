@@ -36,7 +36,7 @@ export function SegmentRow({
       transition={{ duration: 0.45, delay: 0.15 + index * 0.06, ease: [0.16, 1, 0.3, 1] }}
     >
       <Link
-        href={`/segments/${summary.segment}` as const}
+        href={`/audience?segment=${summary.segment}` as const}
         className="group relative block border-b border-hairline transition-colors duration-200 hover:bg-bg-raised"
       >
         {/* Accent bar */}

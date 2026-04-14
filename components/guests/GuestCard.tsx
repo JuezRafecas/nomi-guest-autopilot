@@ -14,7 +14,7 @@ interface Props {
 export function GuestCard({ id, name, segment, total_visits, days_since_last }: Props) {
   return (
     <Link
-      href={`/guest/${id}` as const}
+      href={`/audience/${id}` as const}
       className="group flex items-center gap-4 py-4 border-b border-hairline hover:bg-bg-raised transition-colors duration-150"
     >
       <span

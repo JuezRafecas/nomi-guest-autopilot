@@ -36,7 +36,7 @@ export function GuestList({ rows }: { rows: Row[] }) {
           transition={{ duration: 0.3, delay: 0.04 * i }}
         >
           <Link
-            href={`/guest/${row.id}` as const}
+            href={`/audience/${row.id}` as const}
             className="grid grid-cols-[minmax(0,2fr)_140px_100px_110px_80px_140px] gap-6 pl-6 pr-6 py-5 border-b border-hairline hover:bg-bg-raised transition-colors duration-150 items-center"
           >
             <div

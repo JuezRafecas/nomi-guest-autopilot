@@ -1,0 +1,81 @@
+import { AppShell } from '@/components/layout/AppShell';
+import { Header } from '@/components/layout/Header';
+import { Label } from '@/components/ui/Label';
+import { Button } from '@/components/ui/Button';
+import { MOCK_RESTAURANT } from '@/lib/mock';
+
+export default function SettingsPage() {
+  return (
+    <AppShell>
+      <Header />
+
+      <section className="editorial-container pt-16 pb-24 max-w-[780px]">
+        <Label className="mb-3">Configuración</Label>
+        <h1
+          className="font-display text-[clamp(2.5rem,5vw,4.5rem)] leading-[0.95] text-fg mb-16"
+          style={{ fontVariationSettings: '"opsz" 144, "SOFT" 50' }}
+        >
+          Restaurante
+        </h1>
+
+        <div className="space-y-12">
+          <Field label="Nombre" value={MOCK_RESTAURANT.name} />
+          <Field label="Slug" value={MOCK_RESTAURANT.slug} mono />
+          <Field label="Ticket promedio" value={`$${MOCK_RESTAURANT.avg_ticket.toLocaleString('es-AR')}`} mono />
+          <Field label="Moneda" value={MOCK_RESTAURANT.currency} mono />
+          <Field label="Zona horaria" value="America/Argentina/Buenos_Aires" mono />
+        </div>
+
+        <div className="mt-20 pt-12 border-t border-hairline">
+          <Label className="mb-6">Canales</Label>
+          <div className="space-y-6">
+            <ChannelRow name="WhatsApp Business" status="Conectado" active />
+            <ChannelRow name="Email transaccional" status="Resend · conectado" active />
+          </div>
+        </div>
+
+        <div className="mt-16 flex items-center gap-3">
+          <Button variant="primary">Guardar cambios</Button>
+          <Button variant="link">Cancelar</Button>
+        </div>
+      </section>
+    </AppShell>
+  );
+}
+
+function Field({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div className="grid grid-cols-[160px_1fr] gap-8 items-baseline border-b border-hairline pb-5">
+      <Label>{label}</Label>
+      <div className={mono ? 'font-mono text-[15px] text-fg' : 'font-display italic text-xl text-fg'}
+        style={!mono ? { fontVariationSettings: '"opsz" 144, "SOFT" 50' } : undefined}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function ChannelRow({ name, status, active }: { name: string; status: string; active: boolean }) {
+  return (
+    <div className="flex items-center justify-between border-b border-hairline pb-5">
+      <div>
+        <div
+          className="font-display text-lg text-fg"
+          style={{ fontVariationSettings: '"opsz" 144, "SOFT" 30' }}
+        >
+          {name}
+        </div>
+        <div className="text-[10px] uppercase tracking-label text-fg-subtle mt-1">{status}</div>
+      </div>
+      <div
+        className={`text-[10px] uppercase tracking-label flex items-center gap-2 ${
+          active ? 'text-segment-active' : 'text-fg-subtle'
+        }`}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+        {active ? 'Activo' : 'Inactivo'}
+      </div>
+    </div>
+  );
+}
