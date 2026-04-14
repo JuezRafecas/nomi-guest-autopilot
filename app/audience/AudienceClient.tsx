@@ -55,6 +55,7 @@ export function AudienceClient({
   totalGuests: number;
   pendingCount?: number;
 }) {
+  const truncated = guests.length < totalGuests;
   const params = useSearchParams();
   const initial = params?.get('segment');
   const initialScope: Scope =
@@ -129,7 +130,13 @@ export function AudienceClient({
             className="font-mono text-[11px] uppercase tabular-nums"
             style={{ letterSpacing: '0.14em', color: 'var(--fg-subtle)' }}
           >
-            Showing <span style={{ color: 'var(--fg)' }}>{filtered.length}</span> / {guests.length}
+            Showing <span style={{ color: 'var(--fg)' }}>{filtered.length}</span> /{' '}
+            {guests.length}
+            {truncated && (
+              <>
+                {' '}of <span style={{ color: 'var(--fg)' }}>{totalGuests}</span> in base
+              </>
+            )}
           </span>
         </div>
         <div className="border-t border-hairline pt-3">

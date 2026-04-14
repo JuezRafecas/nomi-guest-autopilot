@@ -24,7 +24,7 @@ export async function GET(req: Request) {
   const tier = url.searchParams.get('tier');
   const sortParam = url.searchParams.get('sort') ?? 'visits';
   const sort: SortKey = isSortKey(sortParam) ? sortParam : 'visits';
-  const limit = Math.min(Number(url.searchParams.get('limit') ?? '50'), 500);
+  const limit = Math.min(Number(url.searchParams.get('limit') ?? '50'), 5000);
   const offset = Number(url.searchParams.get('offset') ?? '0');
   const minVisits = Number(url.searchParams.get('min_visits') ?? '0');
   const maxDaysSinceLast = url.searchParams.get('max_days_since_last');

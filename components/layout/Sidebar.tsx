@@ -12,7 +12,6 @@ const NAV = [
   { href: '/campaigns', label: 'Campaigns' },
   { href: '/templates', label: 'Templates', soon: true },
   { href: '/audience', label: 'Audience' },
-  { href: '/messages', label: 'Messages', badgeKey: 'pending' as const },
   { href: '/integrations', label: 'Integrations' },
   { href: '/settings', label: 'Settings' },
 ];
@@ -54,7 +53,6 @@ export function Sidebar({ mobileOpen = false, onMobileClose, pendingCount = 0 }:
         <ul className="space-y-0.5">
           {NAV.map((item) => {
             const active = pathname === item.href || pathname?.startsWith(item.href + '/');
-            const showPendingBadge = item.badgeKey === 'pending' && pendingCount > 0;
             return (
               <li key={item.href}>
                 <Link
@@ -93,17 +91,6 @@ export function Sidebar({ mobileOpen = false, onMobileClose, pendingCount = 0 }:
                       }}
                     >
                       SOON
-                    </span>
-                  )}
-                  {showPendingBadge && (
-                    <span
-                      className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[9px] font-mono font-bold leading-none"
-                      style={{
-                        backgroundColor: 'var(--accent)',
-                        color: 'var(--bg)',
-                      }}
-                    >
-                      {pendingCount}
                     </span>
                   )}
                 </Link>
