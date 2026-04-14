@@ -11,7 +11,6 @@ const NAV = [
   { href: '/campaigns', label: 'Campaigns' },
   { href: '/templates', label: 'Templates' },
   { href: '/audience', label: 'Audience' },
-  { href: '/messages', label: 'Messages', badgeKey: 'pending' as const },
   { href: '/integrations', label: 'Integrations' },
 ];
 

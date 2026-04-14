@@ -72,7 +72,7 @@ export function createSession(): NomiSession {
   const now = new Date().toISOString();
   const session: NomiSession = {
     id: `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
-    title: 'Nueva conversación',
+    title: 'New conversation',
     created_at: now,
     updated_at: now,
     messages: [],
@@ -89,7 +89,7 @@ export function saveSessionMessages(id: string, messages: UIMessage[]): void {
   if (idx === -1) {
     all.push({
       id,
-      title: deriveTitle(messages) || 'Nueva conversación',
+      title: deriveTitle(messages) || 'New conversation',
       created_at: now,
       updated_at: now,
       messages,

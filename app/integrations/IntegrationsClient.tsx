@@ -88,19 +88,19 @@ const CATEGORIES: Category[] = [
   },
 ];
 
-const DEFAULT_ON = new Set(['soft-restaurant', 'mercado-pago', 'whatsapp', 'google-reviews']);
+const AVAILABLE = new Set(['woki', 'fudo']);
 
 export function IntegrationsClient() {
   const initial: Record<string, boolean> = {};
   for (const cat of CATEGORIES) {
     for (const item of cat.items) {
-      initial[item.id] = DEFAULT_ON.has(item.id);
+      initial[item.id] = AVAILABLE.has(item.id);
     }
   }
   const [state, setState] = useState<Record<string, boolean>>(initial);
 
   const total = Object.keys(state).length;
-  const active = Object.values(state).filter(Boolean).length;
+  const active = Object.entries(state).filter(([id, on]) => on && AVAILABLE.has(id)).length;
 
   return (
     <section className="editorial-container pt-16 pb-24">
@@ -151,16 +151,20 @@ export function IntegrationsClient() {
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-                {cat.items.map((item) => (
-                  <IntegrationCard
-                    key={item.id}
-                    integration={item}
-                    on={!!state[item.id]}
-                    onToggle={() =>
-                      setState((s) => ({ ...s, [item.id]: !s[item.id] }))
-                    }
-                  />
-                ))}
+                {cat.items.map((item) => {
+                  const available = AVAILABLE.has(item.id);
+                  return (
+                    <IntegrationCard
+                      key={item.id}
+                      integration={item}
+                      available={available}
+                      on={!!state[item.id]}
+                      onToggle={() =>
+                        setState((s) => ({ ...s, [item.id]: !s[item.id] }))
+                      }
+                    />
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -172,10 +176,12 @@ export function IntegrationsClient() {
 
 function IntegrationCard({
   integration,
+  available,
   on,
   onToggle,
 }: {
   integration: Integration;
+  available: boolean;
   on: boolean;
   onToggle: () => void;
 }) {
@@ -185,6 +191,7 @@ function IntegrationCard({
       style={{
         background: 'var(--bg-sunken)',
         border: '1px solid var(--hairline)',
+        opacity: available ? 1 : 0.7,
       }}
     >
       <div className="flex items-center gap-3 min-w-0">
@@ -204,7 +211,7 @@ function IntegrationCard({
             className="font-mono text-[10px] uppercase mt-1"
             style={{
               letterSpacing: '0.14em',
-              color: on ? 'var(--k-green, #0e5e48)' : 'var(--fg-subtle)',
+              color: available && on ? 'var(--k-green, #0e5e48)' : 'var(--fg-subtle)',
             }}
           >
             <span
@@ -213,15 +220,28 @@ function IntegrationCard({
               style={{
                 width: 6,
                 height: 6,
-                background: on ? 'var(--k-green, #0e5e48)' : 'transparent',
-                border: on ? 'none' : '1px solid var(--fg-faint)',
+                background: available && on ? 'var(--k-green, #0e5e48)' : 'transparent',
+                border: available && on ? 'none' : '1px solid var(--fg-faint)',
               }}
             />
-            {on ? 'Connected' : 'Disconnected'}
+            {available ? (on ? 'Connected' : 'Disconnected') : 'Coming soon'}
           </div>
         </div>
       </div>
-      <ToggleSwitch on={on} onToggle={onToggle} label={integration.name} />
+      {available ? (
+        <ToggleSwitch on={on} onToggle={onToggle} label={integration.name} />
+      ) : (
+        <span
+          className="font-mono text-[9.5px] uppercase shrink-0 px-2 py-1"
+          style={{
+            letterSpacing: '0.16em',
+            color: 'var(--fg-subtle)',
+            border: '1px solid var(--hairline-strong)',
+          }}
+        >
+          Coming soon
+        </span>
+      )}
     </div>
   );
 }

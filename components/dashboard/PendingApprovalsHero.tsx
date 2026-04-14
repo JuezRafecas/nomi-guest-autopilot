@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { SectionLabel } from '@/components/ui/SectionLabel';
@@ -80,9 +79,8 @@ export function PendingApprovalsHero({ messages }: Props) {
           </h2>
         </div>
         {remaining > 0 && (
-          <Link
-            href="/messages?status=pending_approval"
-            className="inline-flex items-center gap-2 text-[10.5px] uppercase font-[600] px-4 py-2 transition-colors self-start md:self-auto k-outline-cta"
+          <span
+            className="inline-flex items-center gap-2 text-[10.5px] uppercase font-[600] px-4 py-2 self-start md:self-auto"
             style={{
               letterSpacing: '0.16em',
               border: '1px solid var(--fg)',
@@ -90,9 +88,8 @@ export function PendingApprovalsHero({ messages }: Props) {
               fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
             }}
           >
-            See the remaining {remaining}
-            <span aria-hidden>→</span>
-          </Link>
+            +{remaining} more
+          </span>
         )}
       </div>
 
