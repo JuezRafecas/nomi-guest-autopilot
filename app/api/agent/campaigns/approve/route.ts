@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     supabase = getServiceClient();
   } catch (err) {
     return Response.json(
-      { error: err instanceof Error ? err.message : 'Supabase no configurado.' },
+      { error: err instanceof Error ? err.message : 'Supabase not configured.' },
       { status: 501 }
     );
   }
@@ -19,7 +19,10 @@ export async function POST(req: NextRequest) {
   const body = (await req.json()) as { draft?: CampaignDraft };
   if (!body.draft || !isValidDraft(body.draft)) {
     return Response.json(
-      { error: 'draft inválido: falta restaurant_id, name, type, workflow, audience_filter o trigger.' },
+      {
+        error:
+          'Invalid draft: missing restaurant_id, name, type, workflow, audience_filter or trigger.',
+      },
       { status: 400 }
     );
   }
@@ -32,9 +35,23 @@ export async function POST(req: NextRequest) {
     });
     return Response.json({ campaign }, { status: 201 });
   } catch (err) {
+    const detail = supabaseErrorDetail(err);
     return Response.json(
-      { error: err instanceof Error ? err.message : 'Error persistiendo la campaña.' },
+      {
+        error: `Failed to persist campaign${detail ? `: ${detail}` : '.'}`,
+      },
       { status: 500 }
     );
   }
+}
+
+function supabaseErrorDetail(err: unknown): string | null {
+  if (!err || typeof err !== 'object') {
+    return err instanceof Error ? err.message : null;
+  }
+  const e = err as { message?: string; code?: string; details?: string; hint?: string };
+  const parts = [e.code, e.message, e.details, e.hint].filter(
+    (p): p is string => typeof p === 'string' && p.length > 0
+  );
+  return parts.length ? parts.join(' · ') : null;
 }

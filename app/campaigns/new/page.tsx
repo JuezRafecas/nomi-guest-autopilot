@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
 import { Header } from '@/components/layout/Header';
 import { Label } from '@/components/ui/Label';
-import { Button } from '@/components/ui/Button';
 import { WorkflowDiagram } from '@/components/campaigns/WorkflowDiagram';
 import { AudienceSummary } from '@/components/campaigns/AudienceSummary';
 import { TEMPLATES, TEMPLATE_ORDER } from '@/lib/templates';
@@ -63,16 +62,26 @@ export default async function NewCampaignPage({
               className="font-display italic text-[15px] text-fg-muted leading-snug mb-8"
               style={{ fontVariationSettings: '"opsz" 14' }}
             >
-              you will activate this campaign with the template defaults.
-              messages are generated on the fly — you approve before they go out.
+              campaign activation is in private beta. the workflow, audience,
+              and KPIs are already wired — launch is coming next.
             </p>
-            <div className="flex flex-col gap-3">
-              <Button variant="primary" className="w-full">
-                Activate campaign
-              </Button>
-              <Button variant="ghost" className="w-full">
-                Edit parameters
-              </Button>
+            <div
+              className="flex items-center justify-center px-4 py-4 text-[11px] uppercase font-[600]"
+              style={{
+                letterSpacing: '0.18em',
+                border: '1px dashed var(--fg-faint)',
+                color: 'var(--fg-subtle)',
+                fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
+              }}
+            >
+              <span className="inline-flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className="inline-block w-1.5 h-1.5 rounded-full"
+                  style={{ background: 'var(--accent)', opacity: 0.6 }}
+                />
+                Coming soon
+              </span>
             </div>
           </div>
         </aside>

@@ -1,12 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Campaign } from '../types';
+import { campaignFromRow, campaignInsertPayload, type CampaignRow } from '../campaigns-db';
 import { emptyMetrics } from '../campaigns';
+import type { Campaign } from '../types';
 import type { CampaignDraft } from './types';
 
-/**
- * Persist a campaign draft (from the agent or from a template picker) to
- * the `campaigns` table. Returns the persisted row.
- */
 export async function persistCampaignDraft(
   supabase: SupabaseClient,
   draft: Omit<Campaign, 'id' | 'created_at' | 'updated_at' | 'metrics'> & {
@@ -15,12 +12,17 @@ export async function persistCampaignDraft(
     reasoning?: string;
   }
 ): Promise<Campaign> {
-  const row = {
+  const reasoning = draft.reasoning?.trim();
+  const description = reasoning
+    ? `${draft.description ?? ''}${draft.description ? '\n\n' : ''}Why: ${reasoning}`
+    : draft.description;
+
+  const payload = campaignInsertPayload({
     restaurant_id: draft.restaurant_id,
     template_key: draft.template_key,
     type: draft.type,
     name: draft.name,
-    description: draft.description,
+    description: description ?? null,
     status: draft.status,
     audience_filter: draft.audience_filter,
     trigger: draft.trigger,
@@ -28,20 +30,18 @@ export async function persistCampaignDraft(
     channels: draft.channels,
     metrics: draft.metrics ?? emptyMetrics(),
     estimated_revenue: draft.estimated_revenue,
-    metadata: {
-      source: draft.source ?? 'manual',
-      reasoning: draft.reasoning ?? null,
-    },
-  };
+    started_at: draft.started_at ?? null,
+    completed_at: draft.completed_at ?? null,
+  });
 
   const { data, error } = await supabase
     .from('campaigns')
-    .insert(row)
+    .insert(payload)
     .select()
     .single();
 
   if (error) throw error;
-  return data as Campaign;
+  return campaignFromRow(data as CampaignRow);
 }
 
 export function isValidDraft(draft: unknown): draft is CampaignDraft {
