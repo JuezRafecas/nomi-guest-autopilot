@@ -11,22 +11,18 @@ interface KPI {
 export function KPIGrid({ kpis }: { kpis: KPI[] }) {
   return (
     <div
-      className="grid grid-cols-2 lg:grid-cols-4"
+      className="kpi-grid grid grid-cols-2 lg:grid-cols-4"
       style={{
         borderTop: '1.5px solid var(--hairline-strong)',
         borderBottom: '1.5px solid var(--hairline-strong)',
       }}
     >
-      {kpis.map((k, i) => {
+      {kpis.map((k) => {
         const isAnchor = k.format === 'ars';
         return (
           <div
             key={k.label}
-            className="px-8 py-8 relative"
-            style={{
-              borderRight: i % 4 !== 3 ? '1px solid var(--hairline)' : 'none',
-              borderBottom: i < 2 ? '1px solid var(--hairline)' : 'none',
-            }}
+            className="kpi-cell relative px-6 py-7 md:px-8 md:py-8"
           >
             <div
               className="mb-3 text-[10.5px] uppercase font-[600]"
@@ -38,21 +34,13 @@ export function KPIGrid({ kpis }: { kpis: KPI[] }) {
             >
               {k.label}
             </div>
-            <div className="flex items-baseline gap-3">
+            <div className="flex items-baseline gap-3 flex-wrap">
               <KPIValue kpi={k} isAnchor={isAnchor} />
               {k.delta != null && k.delta !== 0 && <DeltaChip delta={k.delta} />}
             </div>
           </div>
         );
       })}
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .lg\\:grid-cols-4 > div {
-            border-bottom: none !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
@@ -122,15 +110,16 @@ function DeltaChip({ delta }: { delta: number }) {
   const positive = delta > 0;
   return (
     <span
-      className="font-mono text-[10px] tabular-nums px-1.5 py-0.5"
+      className="font-mono text-[10px] tabular-nums px-1.5 py-0.5 animate-[fade-up_.6s_cubic-bezier(0.2,0.7,0.2,1)_.3s_both]"
       style={{
         letterSpacing: '0.04em',
         border: '1px solid var(--hairline-strong)',
         background: 'var(--bg-raised)',
         color: positive ? 'var(--k-green, #0e5e48)' : 'var(--accent-dim)',
       }}
+      aria-label={`${positive ? 'Subió' : 'Bajó'} ${Math.abs(delta).toFixed(1)} por ciento`}
     >
-      {positive ? '↗' : '↘'} {Math.abs(delta).toFixed(1)}%
+      <span aria-hidden>{positive ? '↗' : '↘'}</span> {Math.abs(delta).toFixed(1)}%
     </span>
   );
 }

@@ -21,16 +21,16 @@ export function CampaignRow({ campaign, index = 0 }: { campaign: Campaign; index
     >
       <Link
         href={`/campaigns/${campaign.id}` as const}
-        className="group relative block transition-colors duration-200 hover:bg-bg-sunken"
+        className="group relative block transition-colors duration-200 hover:bg-bg-sunken focus-visible:bg-bg-sunken"
         style={{ borderBottom: '1px solid var(--hairline)' }}
       >
         <span
           aria-hidden
-          className="absolute left-0 top-0 bottom-0 transition-[width] duration-200 group-hover:w-[6px] w-[3px]"
+          className="absolute left-0 top-0 bottom-0 transition-[width] duration-200 group-hover:w-[6px] group-focus-visible:w-[6px] w-[3px]"
           style={{ backgroundColor: `var(--segment-${accent})` }}
         />
 
-        <div className="grid grid-cols-[minmax(0,1.8fr)_100px_90px_100px_140px_auto] items-center gap-6 pl-8 pr-6 py-6">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-[minmax(0,1.8fr)_100px_90px_100px_140px_auto] items-center gap-4 lg:gap-6 pl-6 pr-5 lg:pl-8 lg:pr-6 py-5 lg:py-6">
           <div className="min-w-0">
             <div className="flex items-center gap-3 mb-1.5">
               <CampaignStatusBadge status={campaign.status} animated />
@@ -70,20 +70,33 @@ export function CampaignRow({ campaign, index = 0 }: { campaign: Campaign; index
             </p>
           </div>
 
-          <Metric value={<Numeral value={campaign.metrics.sent} />} label="enviados" />
-          <Metric
+          {/* Desktop metrics */}
+          <div className="hidden lg:block"><Metric value={<Numeral value={campaign.metrics.sent} />} label="enviados" /></div>
+          <div className="hidden lg:block"><Metric
             value={`${(campaign.metrics.response_rate * 100).toFixed(1)}%`}
             label="respuesta"
-          />
-          <Metric
+          /></div>
+          <div className="hidden lg:block"><Metric
             value={`${(campaign.metrics.conversion_rate * 100).toFixed(1)}%`}
             label="conversión"
-          />
-          <Metric
+          /></div>
+          <div className="hidden lg:block"><Metric
             value={formatARS(campaign.metrics.revenue_attributed)}
             label="revenue"
             anchor
-          />
+          /></div>
+
+          {/* Mobile compact metrics */}
+          <div className="lg:hidden col-span-2 mt-3 grid grid-cols-3 gap-3 pt-3 border-t border-hairline">
+            <MobileMetric label="Enviados" value={<Numeral value={campaign.metrics.sent} />} />
+            <MobileMetric label="Conv." value={`${(campaign.metrics.conversion_rate * 100).toFixed(1)}%`} />
+            <MobileMetric
+              label="Revenue"
+              value={formatARS(campaign.metrics.revenue_attributed)}
+              accent
+              align="right"
+            />
+          </div>
 
           <div className="text-right">
             <span
@@ -102,6 +115,38 @@ export function CampaignRow({ campaign, index = 0 }: { campaign: Campaign; index
         </div>
       </Link>
     </motion.div>
+  );
+}
+
+function MobileMetric({
+  label,
+  value,
+  accent,
+  align = 'left',
+}: {
+  label: string;
+  value: React.ReactNode;
+  accent?: boolean;
+  align?: 'left' | 'right';
+}) {
+  return (
+    <div className={align === 'right' ? 'text-right' : ''}>
+      <div
+        className="text-[9px] uppercase mb-0.5"
+        style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
+      >
+        {label}
+      </div>
+      <div
+        className="font-mono tabular-nums text-[13px]"
+        style={{
+          color: accent ? 'var(--accent)' : 'var(--fg)',
+          fontWeight: accent ? 600 : 400,
+        }}
+      >
+        {value}
+      </div>
+    </div>
   );
 }
 

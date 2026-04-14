@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
 import { Header } from '@/components/layout/Header';
+import { SectionLabel } from '@/components/ui/SectionLabel';
 import { EditorialHeadline } from '@/components/dashboard/EditorialHeadline';
 import { HealthScore } from '@/components/dashboard/HealthScore';
 import { SegmentLedger } from '@/components/dashboard/SegmentLedger';
@@ -8,35 +9,71 @@ import { RevenueOpportunity } from '@/components/dashboard/RevenueOpportunity';
 import { ActivityTicker } from '@/components/dashboard/ActivityTicker';
 import { KPIGrid } from '@/components/dashboard/KPIGrid';
 import { CampaignRow } from '@/components/campaigns/CampaignRow';
-import {
-  MOCK_SEGMENT_SUMMARIES,
-  MOCK_HEALTH_SCORE,
-  MOCK_TOTAL_REVENUE_AT_STAKE,
-  MOCK_EDITORIAL_HEADLINE,
-  MOCK_ACTIVITY_TICKER,
-  MOCK_RESTAURANT,
-  MOCK_DASHBOARD_KPIS,
-  MOCK_CAMPAIGNS,
-} from '@/lib/mock';
+import { getKpis, getSegments, getCampaigns, getMessages, type MessageRow } from '@/lib/api';
+import { DEFAULT_RESTAURANT } from '@/lib/constants';
 
-export default function DashboardPage() {
-  const activeCount =
-    MOCK_SEGMENT_SUMMARIES.find((s) => s.segment === 'vip')!.count +
-    MOCK_SEGMENT_SUMMARIES.find((s) => s.segment === 'active')!.count;
-  const dormantCount = MOCK_SEGMENT_SUMMARIES.find((s) => s.segment === 'dormant')!.count;
+const MILLION_WORDS = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez'];
 
-  const activeCampaigns = MOCK_CAMPAIGNS.filter((c) => c.status === 'active').slice(0, 3);
+function buildEditorialHeadline(revenueAtStake: number) {
+  const millions = Math.floor(revenueAtStake / 1_000_000);
+  const highlight =
+    millions > 0 && millions <= 10
+      ? `${MILLION_WORDS[millions]} millones`
+      : `${millions.toLocaleString('es-AR')} millones`;
+  return {
+    prefix: 'Más de',
+    highlight,
+    suffix: 'de pesos se están yendo por la puerta.',
+  };
+}
+
+function buildActivityTicker(messages: MessageRow[]): string[] {
+  const now = Date.now();
+  return messages.slice(0, 7).map((m) => {
+    const mins = Math.max(1, Math.round((now - new Date(m.created_at).getTime()) / 60_000));
+    const evento =
+      m.status === 'converted'
+        ? `CONVERSIÓN CONFIRMADA +$${Math.round((m.realized_revenue ?? 0) / 1000)}K`
+        : m.status === 'pending_approval'
+          ? 'MENSAJE PENDIENTE DE APROBACIÓN'
+          : m.status === 'sent' || m.status === 'delivered'
+            ? 'MENSAJE ENVIADO'
+            : m.status === 'read'
+              ? 'MENSAJE LEÍDO'
+              : m.status === 'responded'
+                ? 'RESPUESTA RECIBIDA'
+                : 'MENSAJE GENERADO';
+    return `${m.guest_name.toUpperCase()} · ${evento} · HACE ${mins} MIN`;
+  });
+}
+
+export default async function DashboardPage() {
+  const [kpis, summaries, campaigns, messages] = await Promise.all([
+    getKpis(),
+    getSegments(),
+    getCampaigns(),
+    getMessages(),
+  ]);
+
+  const vipCount = summaries.find((s) => s.segment === 'vip')?.count ?? 0;
+  const activeCount = vipCount + (summaries.find((s) => s.segment === 'active')?.count ?? 0);
+  const dormantCount = summaries.find((s) => s.segment === 'dormant')?.count ?? 0;
+
+  const activeCampaigns = campaigns.filter((c) => c.status === 'active').slice(0, 3);
+
+  const headline = buildEditorialHeadline(kpis.revenue_at_stake);
+  const ticker = buildActivityTicker(messages);
 
   return (
     <AppShell>
       <Header />
 
       {/* Editorial headline — compact, one anchor (the outlined digit) */}
-      <section className="editorial-container pt-14 pb-10">
+      <section className="editorial-container section-pt-lead section-pb-close">
         <EditorialHeadline
-          prefix={MOCK_EDITORIAL_HEADLINE.prefix}
-          highlight={MOCK_EDITORIAL_HEADLINE.highlight}
-          suffix={MOCK_EDITORIAL_HEADLINE.suffix}
+          prefix={headline.prefix}
+          highlight={headline.highlight}
+          suffix={headline.suffix}
         />
       </section>
 
@@ -45,12 +82,12 @@ export default function DashboardPage() {
         <div className="editorial-container">
           <KPIGrid
             kpis={[
-              { label: 'Campañas activas', value: MOCK_DASHBOARD_KPIS.active_campaigns },
-              { label: 'Enviados · 30d', value: MOCK_DASHBOARD_KPIS.messages_sent_30d, animated: true },
-              { label: 'Tasa de respuesta', value: MOCK_DASHBOARD_KPIS.response_rate_30d, format: 'percent', delta: 8.7 },
+              { label: 'Campañas activas', value: kpis.active_campaigns },
+              { label: 'Enviados · 30d', value: kpis.messages_sent_30d, animated: true },
+              { label: 'Tasa de respuesta', value: kpis.response_rate_30d, format: 'percent', delta: 8.7 },
               {
                 label: 'Revenue atribuido · 30d',
-                value: MOCK_DASHBOARD_KPIS.revenue_attributed_30d,
+                value: kpis.revenue_attributed_30d,
                 format: 'ars',
                 animated: true,
                 delta: 12.3,
@@ -63,28 +100,19 @@ export default function DashboardPage() {
       {/* Diagnostic: health score + segment ledger */}
       <section className="editorial-container grid grid-cols-1 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] gap-12 lg:gap-16 pb-24">
         <HealthScore
-          score={MOCK_HEALTH_SCORE}
+          score={kpis.base_health_score}
           activeCount={activeCount}
-          totalCount={MOCK_RESTAURANT.total_guests}
+          totalCount={kpis.total_guests}
           diagnosis="uno de cada dos comensales se está yendo por la puerta."
         />
-        <SegmentLedger summaries={MOCK_SEGMENT_SUMMARIES} />
+        <SegmentLedger summaries={summaries} />
       </section>
 
       {/* Active campaigns strip */}
       <section className="pb-20">
-        <div className="editorial-container flex items-end justify-between mb-5">
+        <div className="editorial-container flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
           <div>
-            <div
-              className="text-[10.5px] uppercase font-[600] mb-2"
-              style={{
-                letterSpacing: '0.18em',
-                color: 'var(--k-green, #0e5e48)',
-                fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
-              }}
-            >
-              Campañas activas
-            </div>
+            <SectionLabel className="mb-2">Campañas activas</SectionLabel>
             <h2
               style={{
                 fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
@@ -100,7 +128,7 @@ export default function DashboardPage() {
           </div>
           <Link
             href="/campaigns"
-            className="inline-flex items-center gap-2 text-[10.5px] uppercase font-[600] px-4 py-2 transition-colors hover:bg-[var(--k-green)] hover:text-[var(--bg)] hover:border-[var(--k-green)]"
+            className="inline-flex items-center gap-2 text-[10.5px] uppercase font-[600] px-4 py-2 transition-colors self-start md:self-auto k-outline-cta"
             style={{
               letterSpacing: '0.16em',
               border: '1px solid var(--fg)',
@@ -123,12 +151,12 @@ export default function DashboardPage() {
       </section>
 
       <RevenueOpportunity
-        totalAtStake={MOCK_TOTAL_REVENUE_AT_STAKE}
+        totalAtStake={kpis.revenue_at_stake}
         dormantCount={dormantCount}
-        avgTicket={MOCK_RESTAURANT.avg_ticket}
+        avgTicket={DEFAULT_RESTAURANT.avg_ticket}
       />
 
-      <ActivityTicker items={MOCK_ACTIVITY_TICKER} />
+      {ticker.length > 0 && <ActivityTicker items={ticker} />}
     </AppShell>
   );
 }

@@ -25,7 +25,7 @@ export function TemplateCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.06 * index, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative border border-hairline bg-bg-raised hover:bg-bg-elevated transition-colors duration-200 flex flex-col"
+      className="group relative border border-hairline bg-bg-raised hover:bg-bg-elevated focus-within:bg-bg-elevated transition-colors duration-200 flex flex-col"
     >
       {/* Accent bar */}
       <span
@@ -77,10 +77,24 @@ export function TemplateCard({
 
         <Link
           href={`/campaigns/new?template=${template.key}` as const}
-          className="mt-8 inline-flex items-center justify-between border border-hairline px-4 py-3 hover:border-accent hover:text-accent transition-colors duration-150 text-[11px] uppercase tracking-[0.12em]"
+          className="mt-8 inline-flex items-center justify-between px-4 py-3 transition-colors duration-150 text-[11px] uppercase font-[600] group/cta"
+          style={{
+            letterSpacing: '0.16em',
+            border: '1px solid var(--fg)',
+            color: 'var(--fg)',
+            background: 'var(--bg-raised)',
+            fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
+          }}
         >
-          Usar plantilla
-          <span>→</span>
+          <span className="inline-flex items-center gap-2">
+            <span
+              aria-hidden
+              className="inline-block w-1.5 h-1.5 rounded-full transition-transform group-hover/cta:scale-125"
+              style={{ background: hex }}
+            />
+            Usar plantilla
+          </span>
+          <span className="transition-transform group-hover/cta:translate-x-0.5">→</span>
         </Link>
       </div>
     </motion.div>

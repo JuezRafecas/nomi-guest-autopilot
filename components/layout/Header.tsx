@@ -1,4 +1,11 @@
-export function Header({ title, subtitle }: { title?: string; subtitle?: string }) {
+interface HeaderProps {
+  title?: string;
+  subtitle?: string;
+  /** Show the "Live · Hoy" pulse pill. Defaults to true on live routes. */
+  live?: boolean;
+}
+
+export function Header({ title, subtitle, live = true }: HeaderProps) {
   const today = new Date().toLocaleDateString('es-AR', {
     weekday: 'long',
     day: 'numeric',
@@ -6,13 +13,16 @@ export function Header({ title, subtitle }: { title?: string; subtitle?: string 
     year: 'numeric',
   });
 
+  const hasContent = Boolean(title || live);
+  if (!hasContent) return null;
+
   return (
     <header style={{ borderBottom: '1.5px solid var(--fg)' }}>
-      <div className="editorial-container flex items-center justify-between py-5">
-        <div className="flex items-center gap-4">
-          <span className="k-event-pill">Live · Hoy</span>
+      <div className="editorial-container flex flex-wrap items-center justify-between gap-3 py-5">
+        <div className="flex items-center gap-4 min-w-0">
+          {live && <span className="k-event-pill shrink-0">Live · Hoy</span>}
           {title && (
-            <div>
+            <div className="min-w-0">
               <div
                 className="text-[10px] uppercase font-[600]"
                 style={{
@@ -24,7 +34,7 @@ export function Header({ title, subtitle }: { title?: string; subtitle?: string 
                 {subtitle ?? 'Diagnóstico'}
               </div>
               <h1
-                className="text-[22px] leading-tight"
+                className="text-[22px] leading-tight truncate"
                 style={{
                   fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
                   fontWeight: 800,
@@ -38,7 +48,7 @@ export function Header({ title, subtitle }: { title?: string; subtitle?: string 
           )}
         </div>
         <div
-          className="font-mono text-[10px] uppercase"
+          className="font-mono text-[10px] uppercase shrink-0"
           style={{ letterSpacing: '0.14em', color: 'var(--fg-subtle)' }}
         >
           {today}

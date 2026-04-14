@@ -2,7 +2,9 @@ export function ActivityTicker({ items }: { items: string[] }) {
   const doubled = [...items, ...items];
   return (
     <div
-      className="py-3.5 overflow-hidden relative"
+      className="py-3.5 overflow-hidden relative group"
+      role="marquee"
+      aria-label="Actividad reciente"
       style={{
         borderTop: '2px solid var(--fg)',
         borderBottom: '2px solid var(--fg)',
@@ -10,8 +12,9 @@ export function ActivityTicker({ items }: { items: string[] }) {
       }}
     >
       <div
-        className="flex gap-12 whitespace-nowrap k-marquee hover:[animation-play-state:paused]"
+        className="flex gap-12 whitespace-nowrap k-marquee group-hover:[animation-play-state:paused] group-focus-within:[animation-play-state:paused]"
         style={{ width: 'max-content' }}
+        aria-hidden="true"
       >
         {doubled.map((item, i) => (
           <span
@@ -37,6 +40,12 @@ export function ActivityTicker({ items }: { items: string[] }) {
           </span>
         ))}
       </div>
+      {/* SR-only canonical list — no animation noise for assistive tech */}
+      <ul className="sr-only">
+        {items.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
     </div>
   );
 }

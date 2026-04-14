@@ -12,25 +12,6 @@ export default function LandingPage() {
       data-theme="kaszek"
       className="relative min-h-screen w-full overflow-hidden bg-[#faf8f4] text-[#151411] k-grain"
     >
-      {/* ─────────── TOP BAR ─────────── */}
-      <header className="relative z-20 editorial-container pt-8 pb-6 flex items-center justify-between">
-        <KaszekLogo />
-
-        <nav className="hidden md:flex items-center gap-10">
-          <div className="k-label text-[#0e5e48]">Diagnóstico</div>
-          <div className="k-label text-[#0e5e48]">Método</div>
-          <div className="k-label text-[#0e5e48]">Créditos</div>
-        </nav>
-
-        <div
-          className="k-mono text-[10.5px] uppercase tracking-[0.18em] text-[#605e5a] border border-[#e4dfd2] bg-[#f1ede3]/60 px-3 py-1.5"
-        >
-          ES · EN
-        </div>
-      </header>
-
-      <div className="relative z-20 border-t border-[#e4dfd2]" />
-
       {/* ─────────── HERO ─────────── */}
       <section className="relative z-10 editorial-container pt-20 md:pt-24 pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] gap-14 lg:gap-24 items-start">
