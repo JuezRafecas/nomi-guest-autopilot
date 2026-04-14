@@ -1,0 +1,349 @@
+'use client';
+
+import { useState } from 'react';
+import { Label } from '@/components/ui/Label';
+
+type Integration = {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  defaultOn?: boolean;
+};
+
+type Category = {
+  id: string;
+  title: string;
+  blurb: string;
+  items: Integration[];
+};
+
+const CATEGORIES: Category[] = [
+  {
+    id: 'pos',
+    title: 'POS Regionales',
+    blurb: 'Sincronización de ticket, consumo y mesas',
+    items: [
+      { id: 'soft-restaurant', name: 'Soft Restaurant', icon: <Monogram text="SR" bg="#b54727" /> },
+      { id: 'fudo', name: 'Fudo', icon: <Monogram text="F" bg="#ef6c2a" /> },
+      { id: 'toteat', name: 'Toteat', icon: <Monogram text="Tt" bg="#4a3fb0" /> },
+      { id: 'saipos', name: 'Saipos', icon: <Monogram text="Sp" bg="#0f2a55" /> },
+    ],
+  },
+  {
+    id: 'payments',
+    title: 'Pagos',
+    blurb: 'Atribución de conversiones y cobros digitales',
+    items: [
+      { id: 'mercado-pago', name: 'Mercado Pago', icon: <Monogram text="MP" bg="#0aa7ea" /> },
+      { id: 'pix', name: 'Pix', icon: <DiamondMark color="#1aa59a" /> },
+      { id: 'transbank', name: 'Transbank', icon: <Monogram text="Tb" bg="#d22f2f" /> },
+      { id: 'wompi', name: 'Wompi', icon: <Monogram text="W" bg="#6f45d0" /> },
+    ],
+  },
+  {
+    id: 'reservas',
+    title: 'Reservas',
+    blurb: 'Captura de huésped, mesa y franja horaria',
+    items: [
+      { id: 'woki', name: 'Woki', icon: <Monogram text="Wk" bg="#66c242" /> },
+      { id: 'opentable', name: 'OpenTable', icon: <Monogram text="OT" bg="#c8203b" /> },
+      { id: 'resy', name: 'Resy', icon: <Monogram text="R" bg="#0e0e0e" /> },
+    ],
+  },
+  {
+    id: 'delivery',
+    title: 'Delivery',
+    blurb: 'Pedidos, zonas y ticket fuera del salón',
+    items: [
+      { id: 'rappi', name: 'Rappi', icon: <Monogram text="Rp" bg="#ec255a" /> },
+      { id: 'ifood', name: 'iFood', icon: <Monogram text="iF" bg="#e1252b" /> },
+      { id: 'pedidos-ya', name: 'PedidosYa', icon: <Monogram text="PY" bg="#d72356" /> },
+    ],
+  },
+  {
+    id: 'comunicacion',
+    title: 'Comunicación',
+    blurb: 'Canal directo al huésped',
+    items: [
+      { id: 'whatsapp', name: 'WhatsApp Business API', icon: <WhatsAppMark /> },
+    ],
+  },
+  {
+    id: 'wifi',
+    title: 'WiFi / Portal Cautivo',
+    blurb: 'Identificación del huésped al conectarse',
+    items: [
+      { id: 'google-wifi', name: 'Google WiFi', icon: <WifiMark color="#2a73e0" /> },
+      { id: 'captive-portal', name: 'Captive portal genérico', icon: <WifiMark color="#3a3a3a" /> },
+    ],
+  },
+  {
+    id: 'reviews',
+    title: 'Reviews & Feedback',
+    blurb: 'Señales de satisfacción y reputación',
+    items: [
+      { id: 'google-reviews', name: 'Google Reviews', icon: <StarMark color="#f6a800" /> },
+      { id: 'tripadvisor', name: 'TripAdvisor', icon: <Monogram text="Ta" bg="#0e5e48" /> },
+    ],
+  },
+];
+
+const DEFAULT_ON = new Set(['soft-restaurant', 'mercado-pago', 'whatsapp', 'google-reviews']);
+
+export function IntegrationsClient() {
+  const initial: Record<string, boolean> = {};
+  for (const cat of CATEGORIES) {
+    for (const item of cat.items) {
+      initial[item.id] = DEFAULT_ON.has(item.id);
+    }
+  }
+  const [state, setState] = useState<Record<string, boolean>>(initial);
+
+  const total = Object.keys(state).length;
+  const active = Object.values(state).filter(Boolean).length;
+
+  return (
+    <section className="editorial-container pt-16 pb-24">
+      <Label className="mb-3">Integraciones</Label>
+      <div className="flex items-end justify-between flex-wrap gap-6 mb-14">
+        <h1
+          className="font-display text-[clamp(2.25rem,4.6vw,4rem)] leading-[0.95] text-fg max-w-[780px]"
+          style={{ fontVariationSettings: '"opsz" 144, "SOFT" 50' }}
+        >
+          Conectá las fuentes que mueven plata.
+        </h1>
+        <div className="flex items-center gap-3 shrink-0">
+          <span
+            className="font-mono text-[10px] uppercase"
+            style={{ letterSpacing: '0.14em', color: 'var(--fg-subtle)' }}
+          >
+            Conectadas
+          </span>
+          <span
+            className="font-mono text-[11px] px-2 py-1"
+            style={{
+              border: '1px solid var(--fg)',
+              color: 'var(--fg)',
+              letterSpacing: '0.08em',
+            }}
+          >
+            {String(active).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </span>
+        </div>
+      </div>
+
+      <div className="space-y-16">
+        {CATEGORIES.map((cat) => (
+          <div key={cat.id}>
+            <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 md:gap-10 border-t border-hairline pt-6">
+              <div>
+                <div
+                  className="font-mono text-[10px] uppercase mb-2"
+                  style={{ letterSpacing: '0.18em', color: 'var(--k-green, #0e5e48)' }}
+                >
+                  {cat.title}
+                </div>
+                <div
+                  className="k-italic-serif text-[18px] leading-snug"
+                  style={{ color: 'var(--fg-subtle)' }}
+                >
+                  {cat.blurb}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                {cat.items.map((item) => (
+                  <IntegrationCard
+                    key={item.id}
+                    integration={item}
+                    on={!!state[item.id]}
+                    onToggle={() =>
+                      setState((s) => ({ ...s, [item.id]: !s[item.id] }))
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function IntegrationCard({
+  integration,
+  on,
+  onToggle,
+}: {
+  integration: Integration;
+  on: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div
+      className="flex items-center justify-between gap-4 px-4 py-4 transition-colors hover:bg-[var(--bg-raised)]"
+      style={{
+        background: 'var(--bg-sunken)',
+        border: '1px solid var(--hairline)',
+      }}
+    >
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="shrink-0">{integration.icon}</div>
+        <div className="min-w-0">
+          <div
+            className="text-[14px] leading-tight truncate"
+            style={{
+              fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
+              fontWeight: 600,
+              color: 'var(--fg)',
+            }}
+          >
+            {integration.name}
+          </div>
+          <div
+            className="font-mono text-[10px] uppercase mt-1"
+            style={{
+              letterSpacing: '0.14em',
+              color: on ? 'var(--k-green, #0e5e48)' : 'var(--fg-subtle)',
+            }}
+          >
+            <span
+              aria-hidden
+              className="inline-block mr-1.5 align-middle"
+              style={{
+                width: 6,
+                height: 6,
+                background: on ? 'var(--k-green, #0e5e48)' : 'transparent',
+                border: on ? 'none' : '1px solid var(--fg-faint)',
+              }}
+            />
+            {on ? 'Conectada' : 'Desconectada'}
+          </div>
+        </div>
+      </div>
+      <ToggleSwitch on={on} onToggle={onToggle} label={integration.name} />
+    </div>
+  );
+}
+
+function ToggleSwitch({
+  on,
+  onToggle,
+  label,
+}: {
+  on: boolean;
+  onToggle: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-label={`${on ? 'Desactivar' : 'Activar'} ${label}`}
+      onClick={onToggle}
+      className="relative shrink-0 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-sunken)]"
+      style={{
+        width: 40,
+        height: 22,
+        background: on ? 'var(--k-green, #0e5e48)' : 'transparent',
+        border: `1px solid ${on ? 'var(--k-green, #0e5e48)' : 'var(--fg-faint)'}`,
+      }}
+    >
+      <span
+        aria-hidden
+        className="absolute top-1/2 -translate-y-1/2 transition-all"
+        style={{
+          left: on ? 21 : 3,
+          width: 14,
+          height: 14,
+          background: on ? 'var(--bg)' : 'var(--fg-subtle)',
+        }}
+      />
+    </button>
+  );
+}
+
+function Monogram({ text, bg }: { text: string; bg: string }) {
+  return (
+    <div
+      className="flex items-center justify-center"
+      style={{
+        width: 36,
+        height: 36,
+        background: bg,
+        color: '#fff',
+        fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
+        fontWeight: 800,
+        letterSpacing: '-0.04em',
+        fontSize: text.length > 1 ? 13 : 16,
+      }}
+    >
+      {text}
+    </div>
+  );
+}
+
+function DiamondMark({ color }: { color: string }) {
+  return (
+    <div
+      className="flex items-center justify-center"
+      style={{ width: 36, height: 36, background: '#0e1a1a' }}
+    >
+      <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden>
+        <path d="M10 2 L18 10 L10 18 L2 10 Z" fill={color} />
+      </svg>
+    </div>
+  );
+}
+
+function WhatsAppMark() {
+  return (
+    <div
+      className="flex items-center justify-center"
+      style={{ width: 36, height: 36, background: '#128c4a' }}
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
+        <path
+          d="M3 21 L4.5 16.5 C3.5 15 3 13.2 3 11.5 C3 6.8 7 3 12 3 C17 3 21 6.8 21 11.5 C21 16.2 17 20 12 20 C10.3 20 8.7 19.6 7.3 18.8 Z"
+          fill="none"
+          stroke="#fff"
+          strokeWidth="1.6"
+          strokeLinejoin="miter"
+        />
+      </svg>
+    </div>
+  );
+}
+
+function WifiMark({ color }: { color: string }) {
+  return (
+    <div
+      className="flex items-center justify-center"
+      style={{ width: 36, height: 36, background: '#f3efe6', border: '1px solid var(--hairline)' }}
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden>
+        <path d="M2 9 C7 4 17 4 22 9" stroke={color} strokeWidth="1.8" fill="none" strokeLinecap="square" />
+        <path d="M5 13 C9 9 15 9 19 13" stroke={color} strokeWidth="1.8" fill="none" strokeLinecap="square" />
+        <path d="M8 17 C10 15 14 15 16 17" stroke={color} strokeWidth="1.8" fill="none" strokeLinecap="square" />
+        <rect x="11" y="19" width="2" height="2" fill={color} />
+      </svg>
+    </div>
+  );
+}
+
+function StarMark({ color }: { color: string }) {
+  return (
+    <div
+      className="flex items-center justify-center"
+      style={{ width: 36, height: 36, background: '#0e0e0e' }}
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
+        <path
+          d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.8 L17.9 20.6 L12 16.9 L6.1 20.6 L7.8 13.8 L2.5 9.2 L9.4 8.6 Z"
+          fill={color}
+        />
+      </svg>
+    </div>
+  );
+}

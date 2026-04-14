@@ -3,5 +3,6 @@ import { getMessages } from '@/lib/api';
 
 export default async function MessagesPage() {
   const messages = await getMessages();
-  return <MessagesClient messages={messages} />;
+  const pendingCount = messages.filter((m) => m.status === 'pending_approval').length;
+  return <MessagesClient messages={messages} pendingCount={pendingCount} />;
 }

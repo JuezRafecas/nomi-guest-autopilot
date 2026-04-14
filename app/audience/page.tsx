@@ -1,12 +1,21 @@
 import { AudienceClient } from './AudienceClient';
-import { getGuests, getKpis, getSegments } from '@/lib/api';
+import { getGuests, getKpis, getMessages, getSegments } from '@/lib/api';
 
 export default async function AudiencePage() {
-  const [summaries, guests, kpis] = await Promise.all([
+  const [summaries, guests, kpis, messages] = await Promise.all([
     getSegments(),
     getGuests(),
     getKpis(),
+    getMessages(),
   ]);
+  const pendingCount = messages.filter((m) => m.status === 'pending_approval').length;
 
-  return <AudienceClient summaries={summaries} guests={guests} totalGuests={kpis.total_guests} />;
+  return (
+    <AudienceClient
+      summaries={summaries}
+      guests={guests}
+      totalGuests={kpis.total_guests}
+      pendingCount={pendingCount}
+    />
+  );
 }

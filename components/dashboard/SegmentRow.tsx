@@ -135,7 +135,7 @@ export function SegmentRow({
                 fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
               }}
             >
-              {cfg.cta}
+              {cfg.cta} <span className="tabular-nums opacity-70">({summary.count})</span>
               <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </span>
           </div>

@@ -1,4 +1,5 @@
 import { Numeral } from '@/components/ui/Numeral';
+import { Sparkline } from '@/components/ui/Sparkline';
 
 interface KPI {
   label: string;
@@ -6,6 +7,7 @@ interface KPI {
   format?: 'plain' | 'ars' | 'percent' | 'compact';
   delta?: number;
   animated?: boolean;
+  sparkline?: number[];
 }
 
 export function KPIGrid({ kpis }: { kpis: KPI[] }) {
@@ -36,8 +38,21 @@ export function KPIGrid({ kpis }: { kpis: KPI[] }) {
             </div>
             <div className="flex items-baseline gap-3 flex-wrap">
               <KPIValue kpi={k} isAnchor={isAnchor} />
-              {k.delta != null && k.delta !== 0 && <DeltaChip delta={k.delta} />}
             </div>
+            {(k.sparkline || (k.delta != null && k.delta !== 0)) && (
+              <div className="mt-4 flex items-center gap-2.5 min-h-[18px]">
+                {k.sparkline && k.sparkline.length > 1 && (
+                  <Sparkline
+                    data={k.sparkline}
+                    width={96}
+                    height={16}
+                    color={isAnchor ? 'var(--accent)' : 'var(--k-green, #0e5e48)'}
+                    ariaLabel={`Evolución de ${k.label} en los últimos 30 días`}
+                  />
+                )}
+                {k.delta != null && k.delta !== 0 && <DeltaChip delta={k.delta} />}
+              </div>
+            )}
           </div>
         );
       })}
@@ -117,9 +132,10 @@ function DeltaChip({ delta }: { delta: number }) {
         background: 'var(--bg-raised)',
         color: positive ? 'var(--k-green, #0e5e48)' : 'var(--accent-dim)',
       }}
-      aria-label={`${positive ? 'Subió' : 'Bajó'} ${Math.abs(delta).toFixed(1)} por ciento`}
+      aria-label={`${positive ? 'Subió' : 'Bajó'} ${Math.abs(delta).toFixed(1)} por ciento contra la semana pasada`}
     >
       <span aria-hidden>{positive ? '↗' : '↘'}</span> {Math.abs(delta).toFixed(1)}%
+      <span className="ml-1 opacity-60" aria-hidden>vs 7d</span>
     </span>
   );
 }

@@ -1,18 +1,17 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { Numeral } from '@/components/ui/Numeral';
+import { Sparkline } from '@/components/ui/Sparkline';
 
 interface Props {
   score: number;
   activeCount: number;
   totalCount: number;
   diagnosis: string;
+  series?: number[];
 }
 
-export function HealthScore({ score, activeCount, totalCount, diagnosis }: Props) {
-  const circumference = 2 * Math.PI * 88;
-  const offset = circumference - (score / 100) * circumference;
+export function HealthScore({ score, activeCount, totalCount, diagnosis, series }: Props) {
   const severity = score < 25 ? 'crítica' : score < 50 ? 'en riesgo' : 'estable';
 
   return (
@@ -28,83 +27,79 @@ export function HealthScore({ score, activeCount, totalCount, diagnosis }: Props
         Diagnóstico · Salud de la base
       </div>
 
-      <div className="relative flex items-start gap-6">
-        <svg
-          width="180"
-          height="180"
-          viewBox="0 0 200 200"
-          className="shrink-0 -rotate-90"
-          aria-hidden
-        >
-          <circle
-            cx="100"
-            cy="100"
-            r="88"
-            stroke="var(--hairline-strong)"
-            strokeWidth="2"
-            fill="none"
-          />
-          <motion.circle
-            cx="100"
-            cy="100"
-            r="88"
-            stroke="var(--accent)"
-            strokeWidth="3"
-            fill="none"
-            strokeDasharray={circumference}
-            initial={{ strokeDashoffset: circumference }}
-            animate={{ strokeDashoffset: offset }}
-            transition={{ duration: 1.4, ease: [0.2, 0.7, 0.2, 1], delay: 0.2 }}
-            strokeLinecap="butt"
-          />
-        </svg>
-
-        <div className="flex flex-col">
-          <div className="flex items-start">
-            <span
-              className="tabular-nums"
-              style={{
-                fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
-                fontWeight: 800,
-                fontSize: 'clamp(3.8rem, 7.6vw, 6rem)',
-                letterSpacing: '-0.05em',
-                color: 'var(--fg)',
-                lineHeight: 0.85,
-              }}
-            >
-              <Numeral value={score} animated decimals={1} />
-            </span>
-            <span
-              className="ml-2 mt-2 font-[600]"
-              style={{
-                fontSize: '1.2rem',
-                color: 'var(--fg-subtle)',
-              }}
-            >
-              %
-            </span>
-          </div>
-          <div
-            className="mt-5 flex items-center gap-2 font-mono text-[11px]"
-            style={{ color: 'var(--fg-muted)', letterSpacing: '0.06em' }}
-          >
-            <Numeral value={activeCount} />
-            <span style={{ color: 'var(--fg-faint)' }}>/</span>
-            <Numeral value={totalCount} />
-            <span
-              className="uppercase text-[10px] ml-1"
-              style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
-            >
-              comensales activos
-            </span>
-          </div>
+      <div className="flex flex-col">
+        <div className="flex items-start">
           <span
-            className="k-event-pill mt-5 self-start"
-            style={{ textTransform: 'uppercase' }}
+            className="tabular-nums"
+            style={{
+              fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
+              fontWeight: 800,
+              fontSize: 'clamp(4.6rem, 9.5vw, 7.6rem)',
+              letterSpacing: '-0.055em',
+              color: 'var(--fg)',
+              lineHeight: 0.85,
+            }}
           >
-            Salud {severity}
+            <Numeral value={score} animated decimals={1} />
+          </span>
+          <span
+            className="ml-2 mt-2 font-[600]"
+            style={{
+              fontSize: '1.4rem',
+              color: 'var(--fg-subtle)',
+            }}
+          >
+            %
           </span>
         </div>
+
+        {series && series.length > 1 && (
+          <div className="mt-6 flex items-center gap-3">
+            <span
+              className="font-mono text-[9px] tabular-nums"
+              style={{ color: 'var(--fg-faint)', letterSpacing: '0.08em' }}
+              aria-hidden
+            >
+              0
+            </span>
+            <Sparkline
+              data={series}
+              width={200}
+              height={28}
+              strokeWidth={1.5}
+              color="var(--accent)"
+              ariaLabel="Evolución de la salud de la base en los últimos 30 días"
+            />
+            <span
+              className="font-mono text-[9px] tabular-nums"
+              style={{ color: 'var(--fg-faint)', letterSpacing: '0.08em' }}
+              aria-hidden
+            >
+              100
+            </span>
+          </div>
+        )}
+
+        <div
+          className="mt-5 flex items-center gap-2 font-mono text-[11px]"
+          style={{ color: 'var(--fg-muted)', letterSpacing: '0.06em' }}
+        >
+          <Numeral value={activeCount} />
+          <span style={{ color: 'var(--fg-faint)' }}>/</span>
+          <Numeral value={totalCount} />
+          <span
+            className="uppercase text-[10px] ml-1"
+            style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
+          >
+            comensales activos
+          </span>
+        </div>
+        <span
+          className="k-event-pill mt-5 self-start"
+          style={{ textTransform: 'uppercase' }}
+        >
+          Salud {severity}
+        </span>
       </div>
 
       <p

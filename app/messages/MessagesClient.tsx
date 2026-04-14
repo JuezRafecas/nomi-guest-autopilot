@@ -20,7 +20,13 @@ const SCOPE_MATCH: Record<Scope, (s: MessageStatus) => boolean> = {
   sent: (s) => ['sent', 'delivered', 'read', 'responded'].includes(s),
 };
 
-export function MessagesClient({ messages }: { messages: MessageRow[] }) {
+export function MessagesClient({
+  messages,
+  pendingCount,
+}: {
+  messages: MessageRow[];
+  pendingCount?: number;
+}) {
   const [scope, setScope] = useState<Scope>('all');
 
   const counts = useMemo(() => {
@@ -49,7 +55,7 @@ export function MessagesClient({ messages }: { messages: MessageRow[] }) {
   ];
 
   return (
-    <AppShell>
+    <AppShell pendingCount={pendingCount ?? counts.pending}>
       <Header title="Inbox de aprobaciones" subtitle="Mensajes" />
 
       <section className="editorial-container section-pt-lead section-pb-close">

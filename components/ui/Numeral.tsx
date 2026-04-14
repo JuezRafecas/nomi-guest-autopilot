@@ -5,9 +5,10 @@ import { animate, useMotionValue, useTransform } from 'framer-motion';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'display';
+type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'display' | 'inherit';
 
 const SIZE: Record<Size, string> = {
+  inherit: '',
   xs: 'text-[11px]',
   sm: 'text-[13px]',
   md: 'text-base',
@@ -79,7 +80,7 @@ export function Numeral({
 
   return (
     <motion.span
-      className={cn('font-mono tabular-nums', SIZE[size], className)}
+      className={cn(size !== 'inherit' && 'font-mono', 'tabular-nums', SIZE[size], className)}
     >
       {display}
     </motion.span>

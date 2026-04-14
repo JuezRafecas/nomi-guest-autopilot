@@ -114,7 +114,7 @@ export async function getCampaigns(status?: CampaignStatus): Promise<Campaign[]>
 
 export type MessageRow = Pick<
   Message,
-  'id' | 'channel' | 'status' | 'content' | 'created_at' | 'realized_revenue'
+  'id' | 'channel' | 'status' | 'content' | 'created_at' | 'realized_revenue' | 'estimated_revenue'
 > & {
   guest_name: string;
   campaign_name: string;
@@ -132,6 +132,7 @@ function normalizeMessage(m: unknown): MessageRow {
     content: String(r.content ?? ''),
     created_at: String(r.created_at ?? new Date().toISOString()),
     realized_revenue: r.realized_revenue == null ? null : Number(r.realized_revenue),
+    estimated_revenue: r.estimated_revenue == null ? null : Number(r.estimated_revenue),
     guest_name: String(r.guest_name ?? r.guest?.name ?? '—'),
     campaign_name: String(r.campaign_name ?? r.campaign?.name ?? '—'),
   };

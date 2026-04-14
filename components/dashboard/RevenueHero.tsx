@@ -1,0 +1,81 @@
+'use client';
+
+import { motion } from 'framer-motion';
+import { Numeral } from '@/components/ui/Numeral';
+import { SectionLabel } from '@/components/ui/SectionLabel';
+
+interface Props {
+  revenueThisMonth: number;
+  reactivated: number;
+  visitsRecovered: number;
+  revenueAtStake: number;
+}
+
+export function RevenueHero({
+  revenueThisMonth,
+  reactivated,
+  visitsRecovered,
+  revenueAtStake,
+}: Props) {
+  return (
+    <div className="flex flex-col gap-6">
+      <SectionLabel>Revenue generado por el sistema · Este mes</SectionLabel>
+
+      <motion.div
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
+        className="tabular-nums"
+        style={{
+          fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
+          fontWeight: 800,
+          fontSize: 'clamp(3.5rem, 9vw, 7.6rem)',
+          letterSpacing: '-0.055em',
+          color: 'var(--accent)',
+          lineHeight: 0.85,
+        }}
+      >
+        <Numeral value={revenueThisMonth} format="ars" animated size="inherit" />
+      </motion.div>
+
+      <p
+        className="k-italic-serif leading-snug"
+        style={{
+          fontSize: 'clamp(1.05rem, 1.4vw, 1.35rem)',
+          color: 'var(--fg-muted)',
+          maxWidth: '46ch',
+        }}
+      >
+        <span
+          className="tabular-nums"
+          style={{ color: 'var(--fg)', fontStyle: 'normal', fontWeight: 600 }}
+        >
+          {reactivated}
+        </span>{' '}
+        comensales reactivados ·{' '}
+        <span
+          className="tabular-nums"
+          style={{ color: 'var(--fg)', fontStyle: 'normal', fontWeight: 600 }}
+        >
+          {visitsRecovered}
+        </span>{' '}
+        visitas recuperadas. Aprobás o dejás pasar — el sistema arma el resto.
+      </p>
+
+      {revenueAtStake > 0 && (
+        <div
+          className="mt-2 flex items-baseline gap-2 font-mono text-[10.5px] uppercase"
+          style={{ letterSpacing: '0.16em', color: 'var(--fg-subtle)' }}
+        >
+          <span>Plata esperando · próximos 90d</span>
+          <span
+            className="tabular-nums"
+            style={{ color: 'var(--accent-dim)', letterSpacing: '0.02em' }}
+          >
+            <Numeral value={revenueAtStake} format="ars" />
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}

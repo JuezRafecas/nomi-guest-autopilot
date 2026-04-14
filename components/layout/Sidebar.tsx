@@ -11,15 +11,17 @@ const NAV = [
   { href: '/campaigns', label: 'Campañas' },
   { href: '/templates', label: 'Plantillas' },
   { href: '/audience', label: 'Audiencia' },
-  { href: '/messages', label: 'Mensajes' },
+  { href: '/messages', label: 'Mensajes', badgeKey: 'pending' as const },
+  { href: '/integrations', label: 'Integraciones' },
 ];
 
 interface SidebarProps {
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  pendingCount?: number;
 }
 
-export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
+export function Sidebar({ mobileOpen = false, onMobileClose, pendingCount = 0 }: SidebarProps) {
   const pathname = usePathname();
 
   useEffect(() => {
@@ -98,6 +100,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
           <ul className="space-y-0.5">
             {NAV.map((item) => {
               const active = pathname === item.href || pathname?.startsWith(item.href + '/');
+              const showBadge = item.badgeKey === 'pending' && pendingCount > 0;
               return (
                 <li key={item.href}>
                   <Link
@@ -125,7 +128,26 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
                         borderRadius: 0,
                       }}
                     />
-                    {item.label}
+                    <span className="flex-1">{item.label}</span>
+                    {showBadge && (
+                      <span
+                        role="status"
+                        aria-label={`${pendingCount} mensajes pendientes de aprobación`}
+                        className="k-pulse inline-flex items-center justify-center tabular-nums"
+                        style={{
+                          minWidth: 20,
+                          height: 18,
+                          padding: '0 6px',
+                          fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
+                          fontSize: 10,
+                          letterSpacing: '0.02em',
+                          color: 'var(--bg)',
+                          background: 'var(--accent)',
+                        }}
+                      >
+                        {pendingCount}
+                      </span>
+                    )}
                   </Link>
                 </li>
               );

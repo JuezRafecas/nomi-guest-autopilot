@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AppShell } from '@/components/layout/AppShell';
 import { Header } from '@/components/layout/Header';
 import { Label } from '@/components/ui/Label';
@@ -15,16 +16,24 @@ import type { GuestRow } from '@/lib/api';
 
 type Scope = 'all' | Segment;
 
+const VALID_SEGMENTS = new Set<string>(SEGMENT_ORDER);
+
 export function AudienceClient({
   summaries,
   guests,
   totalGuests,
+  pendingCount,
 }: {
   summaries: SegmentSummary[];
   guests: GuestRow[];
   totalGuests: number;
+  pendingCount?: number;
 }) {
-  const [scope, setScope] = useState<Scope>('all');
+  const params = useSearchParams();
+  const initial = params?.get('segment');
+  const initialScope: Scope =
+    initial && VALID_SEGMENTS.has(initial) ? (initial as Segment) : 'all';
+  const [scope, setScope] = useState<Scope>(initialScope);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = { all: guests.length };
@@ -56,7 +65,7 @@ export function AudienceClient({
   }, [counts]);
 
   return (
-    <AppShell>
+    <AppShell pendingCount={pendingCount}>
       <Header title="Audiencia" subtitle="Base de comensales" />
 
       <section className="editorial-container section-pt-lead section-pb-close">

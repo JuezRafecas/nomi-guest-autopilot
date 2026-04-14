@@ -14,7 +14,13 @@ import type { Campaign, CampaignStatus } from '@/lib/types';
 
 type StatusFilter = 'all' | CampaignStatus;
 
-export function CampaignsClient({ campaigns }: { campaigns: Campaign[] }) {
+export function CampaignsClient({
+  campaigns,
+  pendingCount,
+}: {
+  campaigns: Campaign[];
+  pendingCount?: number;
+}) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   const ordered = useMemo(
@@ -56,7 +62,7 @@ export function CampaignsClient({ campaigns }: { campaigns: Campaign[] }) {
   }, [counts]);
 
   return (
-    <AppShell>
+    <AppShell pendingCount={pendingCount}>
       <Header title="Todas las campañas" subtitle="Campañas" />
 
       <section className="editorial-container section-pt-lead section-pb-close">

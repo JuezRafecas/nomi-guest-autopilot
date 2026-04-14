@@ -1,50 +1,74 @@
-import Link from 'next/link';
-import { AppShell } from '@/components/layout/AppShell';
-import { Header } from '@/components/layout/Header';
-import { SectionLabel } from '@/components/ui/SectionLabel';
-import { EditorialHeadline } from '@/components/dashboard/EditorialHeadline';
-import { HealthScore } from '@/components/dashboard/HealthScore';
-import { SegmentLedger } from '@/components/dashboard/SegmentLedger';
-import { RevenueOpportunity } from '@/components/dashboard/RevenueOpportunity';
-import { ActivityTicker } from '@/components/dashboard/ActivityTicker';
-import { KPIGrid } from '@/components/dashboard/KPIGrid';
-import { CampaignRow } from '@/components/campaigns/CampaignRow';
+import { DashboardClient } from './DashboardClient';
 import { getKpis, getSegments, getCampaigns, getMessages, type MessageRow } from '@/lib/api';
-import { DEFAULT_RESTAURANT } from '@/lib/constants';
+import type { UseCaseKey, UseCaseBreakdown } from '@/lib/dashboard-types';
 
-const MILLION_WORDS = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez'];
+const USE_CASE_LABEL: Record<UseCaseKey, string> = {
+  reactivation: 'Reactivación',
+  post_visit: 'Post-visita',
+  second_visit: 'Primera → Segunda',
+  event: 'Eventos',
+  fill_tables: 'Llenar mesas',
+  other: 'Otras',
+};
 
-function buildEditorialHeadline(revenueAtStake: number) {
-  const millions = Math.floor(revenueAtStake / 1_000_000);
-  const highlight =
-    millions > 0 && millions <= 10
-      ? `${MILLION_WORDS[millions]} millones`
-      : `${millions.toLocaleString('es-AR')} millones`;
-  return {
-    prefix: 'Más de',
-    highlight,
-    suffix: 'de pesos se están yendo por la puerta.',
+function classifyUseCase(campaignName: string): UseCaseKey {
+  const n = campaignName.toLowerCase();
+  if (n.includes('reactiv') || n.includes('dormid')) return 'reactivation';
+  if (n.includes('post') || n.includes('gracias')) return 'post_visit';
+  if (n.includes('segunda') || n.includes('primera')) return 'second_visit';
+  if (n.includes('evento') || n.includes('experiencia')) return 'event';
+  if (n.includes('mesa') || n.includes('ocupaci')) return 'fill_tables';
+  return 'other';
+}
+
+function buildUseCaseBreakdown(messages: MessageRow[]): UseCaseBreakdown[] {
+  const acc: Record<UseCaseKey, UseCaseBreakdown> = {
+    reactivation: { key: 'reactivation', label: USE_CASE_LABEL.reactivation, sent: 0, conversions: 0, revenue: 0 },
+    post_visit: { key: 'post_visit', label: USE_CASE_LABEL.post_visit, sent: 0, conversions: 0, revenue: 0 },
+    second_visit: { key: 'second_visit', label: USE_CASE_LABEL.second_visit, sent: 0, conversions: 0, revenue: 0 },
+    event: { key: 'event', label: USE_CASE_LABEL.event, sent: 0, conversions: 0, revenue: 0 },
+    fill_tables: { key: 'fill_tables', label: USE_CASE_LABEL.fill_tables, sent: 0, conversions: 0, revenue: 0 },
+    other: { key: 'other', label: USE_CASE_LABEL.other, sent: 0, conversions: 0, revenue: 0 },
   };
+
+  for (const m of messages) {
+    const k = classifyUseCase(m.campaign_name);
+    const bucket = acc[k];
+    if (['sent', 'delivered', 'read', 'responded', 'converted'].includes(m.status)) {
+      bucket.sent += 1;
+    }
+    if (m.status === 'converted') {
+      bucket.conversions += 1;
+      bucket.revenue += m.realized_revenue ?? 0;
+    }
+  }
+
+  return Object.values(acc)
+    .filter((b) => b.sent > 0 || b.conversions > 0 || b.revenue > 0)
+    .sort((a, b) => b.revenue - a.revenue);
 }
 
 function buildActivityTicker(messages: MessageRow[]): string[] {
   const now = Date.now();
-  return messages.slice(0, 7).map((m) => {
-    const mins = Math.max(1, Math.round((now - new Date(m.created_at).getTime()) / 60_000));
-    const evento =
-      m.status === 'converted'
-        ? `CONVERSIÓN CONFIRMADA +$${Math.round((m.realized_revenue ?? 0) / 1000)}K`
-        : m.status === 'pending_approval'
-          ? 'MENSAJE PENDIENTE DE APROBACIÓN'
-          : m.status === 'sent' || m.status === 'delivered'
-            ? 'MENSAJE ENVIADO'
-            : m.status === 'read'
-              ? 'MENSAJE LEÍDO'
-              : m.status === 'responded'
-                ? 'RESPUESTA RECIBIDA'
-                : 'MENSAJE GENERADO';
-    return `${m.guest_name.toUpperCase()} · ${evento} · HACE ${mins} MIN`;
-  });
+  const meaningful = messages.filter(
+    (m) => m.status === 'converted' || m.status === 'responded' || m.status === 'pending_approval',
+  );
+
+  return meaningful
+    .slice()
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 7)
+    .map((m) => {
+      const mins = Math.max(1, Math.round((now - new Date(m.created_at).getTime()) / 60_000));
+      const when = mins < 60 ? `HACE ${mins} MIN` : `HACE ${Math.round(mins / 60)} H`;
+      const evento =
+        m.status === 'converted'
+          ? `CONVIRTIÓ +$${Math.round((m.realized_revenue ?? 0) / 1000)}K`
+          : m.status === 'responded'
+            ? 'RESPUESTA POSITIVA'
+            : 'PENDIENTE DE APROBACIÓN';
+      return `${m.guest_name.toUpperCase()} · ${evento} · ${when}`;
+    });
 }
 
 export default async function DashboardPage() {
@@ -56,107 +80,45 @@ export default async function DashboardPage() {
   ]);
 
   const vipCount = summaries.find((s) => s.segment === 'vip')?.count ?? 0;
-  const activeCount = vipCount + (summaries.find((s) => s.segment === 'active')?.count ?? 0);
-  const dormantCount = summaries.find((s) => s.segment === 'dormant')?.count ?? 0;
+  const active = vipCount + (summaries.find((s) => s.segment === 'active')?.count ?? 0);
+  const dormant = summaries.find((s) => s.segment === 'dormant')?.count ?? 0;
+  const pending = messages.filter((m) => m.status === 'pending_approval').length;
 
-  const activeCampaigns = campaigns.filter((c) => c.status === 'active').slice(0, 3);
+  const reactivated = messages.filter(
+    (m) => m.status === 'converted' && classifyUseCase(m.campaign_name) === 'reactivation',
+  ).length;
 
-  const headline = buildEditorialHeadline(kpis.revenue_at_stake);
+  const visitsRecovered = messages.filter((m) => m.status === 'converted').length;
+
+  const approvedLike = messages.filter((m) =>
+    ['approved', 'queued', 'sent', 'delivered', 'read', 'responded', 'converted'].includes(m.status),
+  ).length;
+  const decided = approvedLike + messages.filter((m) => m.status === 'skipped').length;
+  const approvalRate = decided > 0 ? (approvedLike / decided) * 100 : 0;
+
   const ticker = buildActivityTicker(messages);
+  const breakdown = buildUseCaseBreakdown(messages);
+  const postVisita =
+    breakdown.find((b) => b.key === 'post_visit') ??
+    { key: 'post_visit', label: USE_CASE_LABEL.post_visit, sent: 0, conversions: 0, revenue: 0 };
 
   return (
-    <AppShell>
-      <Header />
-
-      {/* Editorial headline — compact, one anchor (the outlined digit) */}
-      <section className="editorial-container section-pt-lead section-pb-close">
-        <EditorialHeadline
-          prefix={headline.prefix}
-          highlight={headline.highlight}
-          suffix={headline.suffix}
-        />
-      </section>
-
-      {/* KPI row */}
-      <section className="pb-16">
-        <div className="editorial-container">
-          <KPIGrid
-            kpis={[
-              { label: 'Campañas activas', value: kpis.active_campaigns },
-              { label: 'Enviados · 30d', value: kpis.messages_sent_30d, animated: true },
-              { label: 'Tasa de respuesta', value: kpis.response_rate_30d, format: 'percent', delta: 8.7 },
-              {
-                label: 'Revenue atribuido · 30d',
-                value: kpis.revenue_attributed_30d,
-                format: 'ars',
-                animated: true,
-                delta: 12.3,
-              },
-            ]}
-          />
-        </div>
-      </section>
-
-      {/* Diagnostic: health score + segment ledger */}
-      <section className="editorial-container grid grid-cols-1 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] gap-12 lg:gap-16 pb-24">
-        <HealthScore
-          score={kpis.base_health_score}
-          activeCount={activeCount}
-          totalCount={kpis.total_guests}
-          diagnosis="uno de cada dos comensales se está yendo por la puerta."
-        />
-        <SegmentLedger summaries={summaries} />
-      </section>
-
-      {/* Active campaigns strip */}
-      <section className="pb-20">
-        <div className="editorial-container flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
-          <div>
-            <SectionLabel className="mb-2">Campañas activas</SectionLabel>
-            <h2
-              style={{
-                fontFamily: 'var(--font-kaszek-display), "Archivo Black", system-ui, sans-serif',
-                fontWeight: 800,
-                fontSize: 'clamp(1.5rem, 2vw, 1.85rem)',
-                letterSpacing: '-0.035em',
-                color: 'var(--fg)',
-                lineHeight: 1.05,
-              }}
-            >
-              Lo que está corriendo ahora mismo.
-            </h2>
-          </div>
-          <Link
-            href="/campaigns"
-            className="inline-flex items-center gap-2 text-[10.5px] uppercase font-[600] px-4 py-2 transition-colors self-start md:self-auto k-outline-cta"
-            style={{
-              letterSpacing: '0.16em',
-              border: '1px solid var(--fg)',
-              color: 'var(--fg)',
-              fontFamily: 'var(--font-kaszek-sans), Inter, system-ui, sans-serif',
-            }}
-          >
-            Ver todas
-            <span>→</span>
-          </Link>
-        </div>
-        <div
-          className="editorial-container"
-          style={{ borderTop: '1.5px solid var(--hairline-strong)' }}
-        >
-          {activeCampaigns.map((c, i) => (
-            <CampaignRow key={c.id} campaign={c} index={i} />
-          ))}
-        </div>
-      </section>
-
-      <RevenueOpportunity
-        totalAtStake={kpis.revenue_at_stake}
-        dormantCount={dormantCount}
-        avgTicket={DEFAULT_RESTAURANT.avg_ticket}
-      />
-
-      {ticker.length > 0 && <ActivityTicker items={ticker} />}
-    </AppShell>
+    <DashboardClient
+      kpis={kpis}
+      summaries={summaries}
+      campaigns={campaigns}
+      messages={messages}
+      ticker={ticker}
+      breakdown={breakdown}
+      postVisita={postVisita}
+      counts={{
+        active,
+        dormant,
+        pending,
+        reactivated,
+        visitsRecovered,
+        approvalRate,
+      }}
+    />
   );
 }
