@@ -48,29 +48,6 @@ function buildUseCaseBreakdown(messages: MessageRow[]): UseCaseBreakdown[] {
     .sort((a, b) => b.revenue - a.revenue);
 }
 
-function buildActivityTicker(messages: MessageRow[]): string[] {
-  const now = Date.now();
-  const meaningful = messages.filter(
-    (m) => m.status === 'converted' || m.status === 'responded' || m.status === 'pending_approval',
-  );
-
-  return meaningful
-    .slice()
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 7)
-    .map((m) => {
-      const mins = Math.max(1, Math.round((now - new Date(m.created_at).getTime()) / 60_000));
-      const when = mins < 60 ? `${mins} MIN AGO` : `${Math.round(mins / 60)} H AGO`;
-      const evento =
-        m.status === 'converted'
-          ? `CONVERTED +$${Math.round((m.realized_revenue ?? 0) / 1000)}K`
-          : m.status === 'responded'
-            ? 'POSITIVE REPLY'
-            : 'PENDING APPROVAL';
-      return `${m.guest_name.toUpperCase()} · ${evento} · ${when}`;
-    });
-}
-
 export default async function DashboardPage() {
   const [kpis, summaries, campaigns, messages] = await Promise.all([
     getKpis(),
@@ -96,7 +73,6 @@ export default async function DashboardPage() {
   const decided = approvedLike + messages.filter((m) => m.status === 'skipped').length;
   const approvalRate = decided > 0 ? (approvedLike / decided) * 100 : 0;
 
-  const ticker = buildActivityTicker(messages);
   const breakdown = buildUseCaseBreakdown(messages);
   const postVisita =
     breakdown.find((b) => b.key === 'post_visit') ??
@@ -108,7 +84,6 @@ export default async function DashboardPage() {
       summaries={summaries}
       campaigns={campaigns}
       messages={messages}
-      ticker={ticker}
       breakdown={breakdown}
       postVisita={postVisita}
       counts={{

@@ -9,7 +9,6 @@ import { PostVisitaStrip } from '@/components/dashboard/PostVisitaStrip';
 import { HealthScore } from '@/components/dashboard/HealthScore';
 import { SegmentLedger } from '@/components/dashboard/SegmentLedger';
 import { RevenueOpportunity } from '@/components/dashboard/RevenueOpportunity';
-import { ActivityTicker } from '@/components/dashboard/ActivityTicker';
 import { KPIGrid } from '@/components/dashboard/KPIGrid';
 import { CampaignRow } from '@/components/campaigns/CampaignRow';
 import { PendingApprovalsHero } from '@/components/dashboard/PendingApprovalsHero';
@@ -24,7 +23,6 @@ interface Props {
   summaries: SegmentSummary[];
   campaigns: Campaign[];
   messages: MessageRow[];
-  ticker: string[];
   breakdown: UseCaseBreakdown[];
   postVisita: UseCaseBreakdown;
   counts: {
@@ -42,7 +40,6 @@ export function DashboardClient({
   summaries,
   campaigns,
   messages,
-  ticker,
   breakdown,
   postVisita,
   counts,
@@ -174,7 +171,6 @@ export function DashboardClient({
         breakdown={breakdown}
       />
 
-      {ticker.length > 0 && <ActivityTicker items={ticker} />}
     </AppShell>
   );
 }
