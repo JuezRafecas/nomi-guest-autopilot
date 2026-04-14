@@ -1,5 +1,5 @@
 /**
- * System prompt for Nomi — the CMO agent of Revenue Autopilot.
+ * System prompt for Nomi — the CMO agent of Nomi - Guest Autopilot.
  *
  * Voice: editorial, concise, Río de la Plata Spanish by default.
  * Principle: "Approve, don't configure" — never ask configuration questions,

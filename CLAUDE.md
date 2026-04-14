@@ -3,7 +3,7 @@
 **Leé [`AGENTS.md`](./AGENTS.md) antes de cualquier cosa.** Es la fuente de verdad para producto, disciplina TDD y convenciones del repo. Este archivo sólo agrega anclas específicas de Claude Code.
 
 ## TL;DR del producto
-Revenue Autopilot para restaurantes. **Approve, don't configure.** La única métrica que importa es plata nueva en caja. Pipeline: CDP → Trigger → Audience → Workflow → Metrics. No es un CRM, no es un campaign builder.
+Nomi - Guest Autopilot para restaurantes. **Approve, don't configure.** La única métrica que importa es plata nueva en caja. Pipeline: CDP → Trigger → Audience → Workflow → Metrics. No es un CRM, no es un campaign builder.
 
 ## Disciplina no negociable — Red-Green TDD
 Basado en <https://simonwillison.net/guides/agentic-engineering-patterns/red-green-tdd/>.

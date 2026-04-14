@@ -1,8 +1,8 @@
-# API Spec — Revenue Autopilot
+# API Spec — Nomi - Guest Autopilot
 
 Fuente de verdad de la API HTTP del proyecto. Cada cambio en `app/api/**` actualiza este archivo en el mismo commit.
 
-- **Producto**: Revenue Autopilot para restaurantes. Pipeline: `CDP → Trigger → Audience → Workflow → Metrics`. Ver [`AGENTS.md`](../AGENTS.md) §1.
+- **Producto**: Nomi - Guest Autopilot para restaurantes. Pipeline: `CDP → Trigger → Audience → Workflow → Metrics`. Ver [`AGENTS.md`](../AGENTS.md) §1.
 - **Stack**: Next.js 15 App Router · TypeScript · Supabase (Postgres) · Anthropic Claude SDK.
 - **Tipos de dominio**: [`lib/types.ts`](../lib/types.ts). Schema: [`supabase/migrations/001_initial_schema.sql`](../supabase/migrations/001_initial_schema.sql) + [`supabase/migrations/002_campaigns.sql`](../supabase/migrations/002_campaigns.sql) + [`003_cdp_raw.sql`](../supabase/migrations/003_cdp_raw.sql).
 

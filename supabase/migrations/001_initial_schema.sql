@@ -1,4 +1,4 @@
--- Revenue Autopilot — initial schema
+-- Nomi - Guest Autopilot — initial schema
 -- Run this in your Supabase SQL editor, or via `supabase db push` if the CLI is linked.
 
 create extension if not exists "pgcrypto";

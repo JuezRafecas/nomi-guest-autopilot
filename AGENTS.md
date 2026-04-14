@@ -1,16 +1,16 @@
-# AGENTS.md — Revenue Autopilot
+# AGENTS.md — Nomi - Guest Autopilot
 
 Este archivo es la **fuente de verdad** para cualquier agente (Claude Code, Cursor, Aider, Codex, etc.) que entre a este repo. Leelo entero antes de tocar una línea. `CLAUDE.md` es un shim que apunta acá.
 
 ---
 
-## 1. Producto — Revenue Autopilot
+## 1. Producto — Nomi - Guest Autopilot
 
 **Qué es.** Sistema autónomo de generación de ingresos para restaurantes. Diagnostica la base de clientes, detecta oportunidades de revenue, y actúa. **El restaurante aprueba, el sistema hace el resto.**
 
 **Usuarios.** Operadores de +500 restaurantes en LatAm (Argentina, Chile, Uruguay, Brasil, México).
 
-**Posicionamiento.** Revenue Autopilot, no un CRM ni un campaign builder. Tagline mental: *Detecta oportunidades de revenue. Decide la acción óptima. Ejecuta a través de canales directos.*
+**Posicionamiento.** Nomi - Guest Autopilot, no un CRM ni un campaign builder. Tagline mental: *Detecta oportunidades de revenue. Decide la acción óptima. Ejecuta a través de canales directos.*
 
 **Modelo mental.** Todo flujo sigue esta pipeline:
 

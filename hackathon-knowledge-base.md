@@ -1,4 +1,4 @@
-# Revenue Autopilot — Hackathon Knowledge Base
+# Nomi - Guest Autopilot — Hackathon Knowledge Base
 
 > El sistema que se encarga de que los clientes vuelvan al restaurante, sin que el restaurante tenga que hacer marketing.
 
@@ -646,7 +646,7 @@ Mientras más datos se acumulan → mejores decisiones → mejores resultados �
 
 ### La visión a largo plazo
 
-Revenue Autopilot es solo el primer paso. A largo plazo, el sistema podrá:
+Nomi - Guest Autopilot es solo el primer paso. A largo plazo, el sistema podrá:
 
 - Predecir demanda por día/hora
 - Optimizar precios dinámicamente
